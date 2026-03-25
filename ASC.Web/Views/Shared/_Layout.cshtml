@@ -24,35 +24,33 @@
 
     <nav class="blue darken-2">
         <div class="nav-wrapper container">
+            <a href="/" class="brand-logo" style="display: flex; align-items: center; height: 100%;">
+                <img src="/images/carlogo.png"
+                     alt="Logo"
+                     width="40"
+                     height="40"
+                     style="object-fit: contain; margin-right: 10px; flex-shrink: 0;">
 
-            <a href="/" class="brand-logo">
-                @_configurationSettings.Value.ApplicationTitle
+                <span class="logo-text" style="font-size: 1.2rem; white-space: nowrap;">
+                    @_configurationSettings.Value.ApplicationTitle
+                </span>
             </a>
 
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+
             <ul class="right hide-on-med-and-down">
-
-                <li>
-                    <a asp-controller="Home" asp-action="Index">
-                        Home
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Home" asp-action="Dashboard">
-                        Dashboard
-                    </a>
-                </li>
-
-                <li>
-                    <a asp-controller="Home" asp-action="Privacy">
-                        Privacy
-                    </a>
-                </li>
-
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a asp-controller="Home" asp-action="Dashboard">Dashboard</a></li>
+                <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
             </ul>
-
         </div>
     </nav>
+
+    <ul class="sidenav" id="mobile-demo">
+        <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+        <li><a asp-controller="Home" asp-action="Dashboard">Dashboard</a></li>
+        <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+    </ul>
 
     <!-- BODY -->
 
@@ -77,6 +75,7 @@
     <!-- JS -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
+    <script src="~/js/init.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
