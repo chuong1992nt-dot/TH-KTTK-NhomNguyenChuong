@@ -1,4 +1,4 @@
-﻿using ASC.DataAccess;
+using ASC.DataAccess;
 using ASC.DataAccess.Interfaces;
 using ASC.DataAccess.Repository;
 using ASC.Web.Configuration;
@@ -16,6 +16,8 @@ builder.Services.AddDbContext<ASC.Web.Data.ApplicationDbContext>(options =>
         b => b.MigrationsAssembly("ASC.Web")
     )
 );
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddScoped<Microsoft.EntityFrameworkCore.DbContext, ASC.Web.Data.ApplicationDbContext>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequireLowercase = false;
@@ -34,7 +36,7 @@ builder.Services.AddOptions();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("AppSettings"));
 builder.Services.AddTransient<IEmailSender, AuthMessageSender>();
 builder.Services.AddTransient<ISmsSender, AuthMessageSender>();
-
+builder.Services.AddSession();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -48,6 +50,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseSession();
 
 app.UseRouting();
 
