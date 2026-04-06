@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Cấu hình DbContext 
 builder.Services.AddDbContext<ASC.Web.Data.ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -17,27 +18,37 @@ builder.Services.AddDbContext<ASC.Web.Data.ApplicationDbContext>(options =>
     )
 );
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddScoped<Microsoft.EntityFrameworkCore.DbContext, ASC.Web.Data.ApplicationDbContext>();
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+builder.Services.AddScoped<DbContext, ASC.Web.Data.ApplicationDbContext>();
+
+// 2. Cấu hình Identity
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
+    options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireDigit = false;
 })
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ASC.Web.Data.ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// 3. Khai báo MVC và Razor Pages
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IIdentitySeed, IdentitySeed>();
-builder.Services.AddOptions();
-builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("AppSettings"));
-builder.Services.AddTransient<IEmailSender, AuthMessageSender>();
-builder.Services.AddTransient<ISmsSender, AuthMessageSender>();
-builder.Services.AddSession();
-builder.Services.AddAuthorization();
+// 4. Tiêm các Dependencies khác (Từ file ConfigurationExtension)
+builder.Services.AddConfig(builder.Configuration).AddMyDependencyGroup();
+
+// 5. CẤU HÌNH GỬI EMAIL (BẠN CHÈN ĐOẠN NÀY VÀO ĐÂY NHÉ)
+// - Đọc thông tin cấu hình từ appsettings.json
+builder.Services.Configure<ASC.Web.Configuration.EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+// - Đăng ký interface của riêng Project (để dùng trong các Controller của bạn sau này)
+builder.Services.AddTransient<ASC.Web.Services.IEmailSender, ASC.Web.Services.AuthMessageSender>();
+builder.Services.AddTransient<ASC.Web.Services.ISmsSender, ASC.Web.Services.AuthMessageSender>();
+
+// - Đăng ký interface chuẩn của Identity (bắt buộc để nút Đăng ký / Quên mật khẩu hoạt động)
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, ASC.Web.Services.AuthMessageSender>();
 
 var app = builder.Build();
 
@@ -52,18 +63,25 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseSession();
-
 app.UseRouting();
 
+// Bắt buộc phải có Authentication trước Authorization
 app.UseAuthentication();
+app.UseAuthorization();
 
-app.UseAuthorization(); 
+// Định tuyến cho Area (ServiceRequests)
+app.MapControllerRoute(
+    name: "areaRoute",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
+// Định tuyến mặc định
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Đoạn code thực thi Seed Data cực kỳ sạch sẽ
+app.MapRazorPages(); // Map đường dẫn cho các trang Identity (Login, Register...)
+
+// Thực thi Seed Data
 using (var scope = app.Services.CreateScope())
 {
     try

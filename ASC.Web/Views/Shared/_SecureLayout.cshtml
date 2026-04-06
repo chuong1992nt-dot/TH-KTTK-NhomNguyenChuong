@@ -33,11 +33,18 @@
 
             <li><a href="/Home/Dashboard" class="white-text"><i class="material-icons white-text">dashboard</i>Dashboard</a></li>
 
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">group</i>User Administration</a></li>
-
+            <li>
+                <a href="@Url.Action("UserAdministration", "Dashboard", new { area = "" })" class="collapsible-header">
+                    <i class="material-icons">people</i>User Administration
+                </a>
+            </li>
             <li><a href="#!" class="white-text"><i class="material-icons white-text">assignment_ind</i>Customers</a></li>
 
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">person_add</i>Provision User</a></li>
+            <li>
+                <a href="@Url.Action("ProvisionUser", "Dashboard", new { area = "" })" class="white-text">
+                    <i class="material-icons white-text">person_add</i>Provision User
+                </a>
+            </li>
 
             <li><a href="#!" class="white-text"><i class="material-icons white-text">person_outline</i>Deactivate User</a></li>
 
@@ -92,5 +99,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>$(document).ready(function(){ $('.sidenav').sidenav(); });</script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

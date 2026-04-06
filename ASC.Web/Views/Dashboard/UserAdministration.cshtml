@@ -1,0 +1,82 @@
+﻿@model IEnumerable<ASC.Web.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "User Administration";
+    Layout = "_SecureLayout";
+}
+
+<div class="row"></div>
+<div class="row padding-top-20px">
+    <div class="row z-depth-3">
+        <div class="section white-text padding-left-10px blue-grey lighten-1">
+            <h5>Users</h5>
+        </div>
+        <div class="divider"></div>
+        <div class="col s12 padding-bottom-15px">
+            @if (Model != null && Model.Any())
+            {
+                <table class="highlight centered responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>User Name</th>
+                            <th>Is Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>@user.Email</td>
+
+                                <td>@user.UserName</td>
+
+                                <td>
+                                    @if (user.EmailConfirmed)
+                                    {
+                                        <i class="material-icons green-text">check_circle</i>
+                                    }
+                                    else
+                                    {
+                                        <i class="material-icons red-text">cancel</i>
+                                    }
+                                </td>
+
+                                <td>
+                                    <a href="#!" class="btn-floating btn-small waves-effect waves-light blue" title="Edit User">
+                                        <i class="material-icons">edit</i>
+                                    </a>
+
+                                    <form asp-action="ChangeStatus" asp-controller="Dashboard" method="post" style="display:inline;">
+                                        <input type="hidden" name="email" value="@user.Email" />
+
+                                        <input type="hidden" name="isActive" value="@(user.EmailConfirmed ? "false" : "true")" />
+
+                                        @if (user.EmailConfirmed)
+                                        {
+                                            <button type="submit" class="btn-floating btn-small waves-effect waves-light red" title="Deactivate User">
+                                                <i class="material-icons">block</i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn-floating btn-small waves-effect waves-light green" title="Activate User">
+                                                <i class="material-icons">check</i>
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="card-panel teal lighten-2 white-text">
+                    No Users found in the system.
+                </div>
+            }
+        </div>
+    </div>
+</div>
