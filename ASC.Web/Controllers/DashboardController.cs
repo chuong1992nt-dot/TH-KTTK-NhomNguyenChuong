@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ASC.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class DashboardController : Controller
+    public class DashboardController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;

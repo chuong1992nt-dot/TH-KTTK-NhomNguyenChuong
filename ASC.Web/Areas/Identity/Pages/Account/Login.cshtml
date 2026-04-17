@@ -1,10 +1,8 @@
-﻿
-@page
+﻿@page
 @model LoginModel
 @{
     ViewData["Title"] = "Log in";
 }
-
 
 <div class="container">
     <div class="row" style="margin-top: 50px;">
@@ -46,6 +44,29 @@
                             <button type="submit" class="btn waves-effect waves-light blue darken-2" style="width:100%">LOG IN</button>
                         </div>
                     </form>
+
+                    @* KHỐI ĐĂNG NHẬP BẰNG GOOGLE *@
+                    <div class="row center-align">
+                        <p>--- OR ---</p>
+                        @{
+                            if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                            {
+                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                    <div>
+                                        @foreach (var provider in Model.ExternalLogins!)
+                                        {
+                                            <button type="submit" class="btn waves-effect waves-light red darken-1"
+                                                    style="width:100%" name="provider" value="@provider.Name"
+                                                    title="Log in using your @provider.DisplayName account">
+                                                <i class="material-icons left">account_circle</i>
+                                                ĐĂNG NHẬP BẰNG @provider.DisplayName.ToUpper()
+                                            </button>
+                                        }
+                                    </div>
+                                </form>
+                            }
+                        }
+                    </div>
                 </div>
                 <div class="card-action center-align">
                     <a id="forgot-password" asp-page="./ForgotPassword">Forgot password?</a> |

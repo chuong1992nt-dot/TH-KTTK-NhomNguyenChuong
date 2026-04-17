@@ -7,8 +7,11 @@ using ASC.Web.Services;
 using ASC.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("navigation.json", optional: true, reloadOnChange: true);
 
 // 1. Cấu hình DbContext 
 builder.Services.AddDbContext<ASC.Web.Data.ApplicationDbContext>(options =>
@@ -32,9 +35,20 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
 .AddEntityFrameworkStores<ASC.Web.Data.ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        IConfigurationSection googleAuthNSection = builder.Configuration.GetSection("Google:Identity");
+        options.ClientId = googleAuthNSection["ClientId"];
+        options.ClientSecret = googleAuthNSection["ClientSecret"];
+    });
+
 // 3. Khai báo MVC và Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
 
 // 4. Tiêm các Dependencies khác (Từ file ConfigurationExtension)
 builder.Services.AddConfig(builder.Configuration).AddMyDependencyGroup();
@@ -50,6 +64,8 @@ builder.Services.AddTransient<ASC.Web.Services.ISmsSender, ASC.Web.Services.Auth
 // - Đăng ký interface chuẩn của Identity (bắt buộc để nút Đăng ký / Quên mật khẩu hoạt động)
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, ASC.Web.Services.AuthMessageSender>();
 
+builder.Services.Configure<ASC.Web.Configuration.NavigationMenu>(builder.Configuration.GetSection("NavigationMenu"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,9 +77,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseSession();
+ 
 app.UseRouting();
+app.UseSession();
 
 // Bắt buộc phải có Authentication trước Authorization
 app.UseAuthentication();

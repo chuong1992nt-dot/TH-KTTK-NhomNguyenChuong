@@ -1,0 +1,87 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model ASC.Web.Areas.Accounts.Models.ServiceEngineerViewModel
+@{
+    ViewData["Title"] = "Service Engineers";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row">
+        <h3>Quản lý Kỹ sư (Service Engineers)</h3>
+
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Danh sách Kỹ sư hiện tại</span>
+                    <table class="highlight">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ServiceEngineers.Any())
+                            {
+                                @foreach (var user in Model.ServiceEngineers)
+                                {
+                                    <tr>
+                                        <td>@user.Email</td>
+                                        <td>
+                                            <span class="badge @(user.LockoutEnabled ? "red white-text" : "green white-text")">
+                                                @(user.LockoutEnabled ? "Bị khóa" : "Đang hoạt động")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="center-align">Chưa có kỹ sư nào.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col s12" style="margin-top: 20px;">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Thêm Kỹ sư mới</span>
+                    <form asp-controller="Account" asp-action="ServiceEngineers" method="post">
+                        <div asp-validation-summary="All" class="red-text" style="font-weight: bold; margin-bottom: 20px;"></div>
+                        <div class="row">
+                            <div class="input-field col s12 m4">
+                                <input asp-for="Registration.Email" type="email" class="validate" required />
+                                <label asp-for="Registration.Email">Email</label>
+                            </div>
+
+                            <div class="input-field col s12 m4">
+                                <input asp-for="Registration.Password" type="password" class="validate" required />
+                                <label asp-for="Registration.Password">Mật khẩu</label>
+                            </div>
+
+                            <div class="input-field col s12 m4">
+                                <input asp-for="Registration.ConfirmPassword" type="password" class="validate" required />
+                                <label asp-for="Registration.ConfirmPassword">Xác nhận mật khẩu</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col s12 right-align">
+                                <button type="submit" class="btn blue darken-1 waves-effect waves-light">
+                                    <i class="material-icons left">person_add</i> TẠO TÀI KHOẢN
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

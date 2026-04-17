@@ -1,0 +1,62 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model ASC.Web.Areas.Accounts.Models.CustomerViewModel
+@{
+    ViewData["Title"] = "Customers";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row">
+        <h3>Quản lý Khách hàng (Customers)</h3>
+
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Danh sách Khách hàng</span>
+                    <table class="highlight">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Customers != null && Model.Customers.Any())
+                            {
+                                foreach (var user in Model.Customers)
+                                {
+                                    <tr>
+                                        <td>@user.Email</td>
+                                        <td>
+                                            <span class="badge @(user.LockoutEnabled ? "red white-text" : "green white-text")">
+                                                @(user.LockoutEnabled ? "Bị khóa" : "Đang hoạt động")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form asp-controller="Account" asp-action="Customers" method="post" style="display:inline;">
+                                                <input type="hidden" asp-for="Registration.Email" value="@user.Email" />
+
+                                                <input type="hidden" asp-for="Registration.IsActive" value="@(user.LockoutEnabled ? "false" : "true")" />
+
+                                                <button type="submit" class="btn-small waves-effect waves-light @(user.LockoutEnabled ? "green" : "red")">
+                                                    <i class="material-icons left">@(user.LockoutEnabled ? "lock_open" : "lock")</i>
+                                                    @(user.LockoutEnabled ? "Kích hoạt" : "Khóa")
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="3" class="center-align">Hệ thống chưa có khách hàng nào.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

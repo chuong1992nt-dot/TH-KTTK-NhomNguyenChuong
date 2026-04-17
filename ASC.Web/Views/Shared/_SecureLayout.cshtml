@@ -1,6 +1,7 @@
 ﻿@using Microsoft.Extensions.Options
 @using ASC.Web.Configuration
 @inject IOptions<ApplicationSettings> _configurationSettings
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,96 +10,44 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="~/css/site.css" />
- 
 </head>
 <body class="secure-body">
     <header>
         <nav class="blue darken-3">
             <div class="nav-wrapper">
-                <a href="#!" class="brand-logo" style="display:flex; align-items:center; height:100%; padding-left:20px;">
+                <a href="@Url.Action("Index", "Home", new { area = "" })" class="brand-logo" style="display:flex; align-items:center; height:100%; padding-left:20px;">
                     <img src="/images/logo.png" style="height:35px; width:auto; margin-right:10px;">
                     <span style="font-size:1.1rem">ASC Admin</span>
                 </a>
             </div>
         </nav>
-        <ul id="slide-out" class="sidenav sidenav-fixed grey darken-1">
-            <li>
-                <div class="user-view">
-                    <div class="background grey darken-2"></div>
-                    <a href="#user"><img class="circle" src="https://via.placeholder.com/100"></a>
-                    <a href="#name"><span class="white-text name">John Doe</span></a>
-                    <a href="#email"><span class="white-text email">johndoe@gmail.com</span></a>
-                </div>
-            </li>
 
-            <li><a href="/Home/Dashboard" class="white-text"><i class="material-icons white-text">dashboard</i>Dashboard</a></li>
+        @await Component.InvokeAsync("LeftNavigation")
 
-            <li>
-                <a href="@Url.Action("UserAdministration", "Dashboard", new { area = "" })" class="collapsible-header">
-                    <i class="material-icons">people</i>User Administration
-                </a>
-            </li>
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">assignment_ind</i>Customers</a></li>
-
-            <li>
-                <a href="@Url.Action("ProvisionUser", "Dashboard", new { area = "" })" class="white-text">
-                    <i class="material-icons white-text">person_add</i>Provision User
-                </a>
-            </li>
-
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">person_outline</i>Deactivate User</a></li>
-
-            <li><div class="divider"></div></li>
-
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">build</i>Service Requests</a></li>
-
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">notifications</i>Service Notifications</a></li>
-
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">card_giftcard</i>Promotions</a></li>
-
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">settings</i>Settings</a></li>
-
-            <li><a href="#!" class="white-text"><i class="material-icons white-text">exit_to_app</i>Logout</a></li>
-        </ul>
     </header>
+
     <main>
         <div class="container">
             @RenderBody()
         </div>
     </main>
+
     <footer class="page-footer grey darken-2">
-        <div class="container">
-            <div class="row">
-                <div class="col l6 s12">
-                    <h5 class="white-text">About Us</h5>
-                    <p class="grey-text text-lighten-4">Automobile Service Center is certified Company to perform car services...</p>
-                </div>
-                <div class="col l3 s12">
-                    <h5 class="white-text">Additional Services</h5>
-                    <ul>
-                        <li><a class="white-text" href="#!">Services</a></li>
-                        <li><a class="white-text" href="#!">Finance</a></li>
-                        <li><a class="white-text" href="#!">Used Cars</a></li>
-                    </ul>
-                </div>
-                <div class="col l3 s12">
-                    <h5 class="white-text">Connect</h5>
-                    <ul>
-                        <li><a class="white-text" href="#!">Facebook</a></li>
-                        <li><a class="white-text" href="#!">LinkedIn</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
         <div class="footer-copyright">
             <div class="container">
                 Powered by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
             </div>
         </div>
     </footer>
+
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script>$(document).ready(function(){ $('.sidenav').sidenav(); });</script>
+    <script>
+        $(document).ready(function(){
+            $('.sidenav').sidenav();
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

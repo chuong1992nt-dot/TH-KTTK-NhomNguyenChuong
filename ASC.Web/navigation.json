@@ -1,0 +1,60 @@
+{
+  "NavigationMenu": {
+    "MenuItems": [
+      {
+        "Name": "Dashboard",
+        "Url": "/Home/Dashboard",
+        "Icon": "dashboard",
+        "AllowedRoles": "Admin,Engineer,Customer"
+      },
+      {
+        "Name": "User Administration",
+        "Url": "/Dashboard/UserAdministration",
+        "Icon": "people",
+        "AllowedRoles": "Admin"
+      },
+      {
+        "Name": "Customers",
+        "Url": "#!",
+        "Icon": "assignment_ind",
+        "AllowedRoles": "Admin"
+      },
+      {
+        "Name": "Provision User",
+        "Url": "/Dashboard/ProvisionUser",
+        "Icon": "person_add",
+        "AllowedRoles": "Admin"
+      },
+      {
+        "Name": "Deactivate User",
+        "Url": "#!",
+        "Icon": "person_outline",
+        "AllowedRoles": "Admin"
+      },
+      {
+        "Name": "Service Requests",
+        "Url": "#!",
+        "Icon": "build",
+        "AllowedRoles": "Admin,Engineer,Customer"
+      },
+      {
+        "Name": "Service Notifications",
+        "Url": "#!",
+        "Icon": "notifications",
+        "AllowedRoles": "Admin,Engineer,Customer"
+      },
+      {
+        "Name": "Promotions",
+        "Url": "#!",
+        "Icon": "card_giftcard",
+        "AllowedRoles": "Admin,Customer"
+      },
+      {
+        "Name": "Settings",
+        "Url": "#!",
+        "Icon": "settings",
+        "AllowedRoles": "Admin,Engineer"
+      }
+    ]
+  }
+}

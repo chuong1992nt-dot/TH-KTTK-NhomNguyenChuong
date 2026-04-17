@@ -1,0 +1,59 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ASC.Web.Models
+@model ASC.Web.Configuration.NavigationMenu
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+<ul id="slide-out" class="sidenav sidenav-fixed grey darken-1">
+    <li>
+        <div class="user-view">
+            <div class="background grey darken-2"></div>
+            <a href="#user"><img class="circle" src="/images/avatar.png" onerror="this.src='https://via.placeholder.com/100'"></a>
+
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var currentUser = await UserManager.GetUserAsync(User);
+                if (currentUser != null)
+                {
+                    <a href="#name"><span class="white-text name">@currentUser.Email.Split('@')[0]</span></a>
+                    <a href="#email"><span class="white-text email">@currentUser.Email</span></a>
+                }
+            }
+            else
+            {
+                <a href="#name"><span class="white-text name">Guest User</span></a>
+                <a href="#email"><span class="white-text email">guest@asc.com</span></a>
+            }
+        </div>
+    </li>
+
+    @if (Model != null && Model.MenuItems != null)
+    {
+        foreach (var item in Model.MenuItems)
+        {
+            var allowedRoles = item.AllowedRoles.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(r => r.Trim());
+
+            bool hasAccess = allowedRoles.Any(role => User.IsInRole(role));
+
+            if (hasAccess)
+            {
+                <li>
+                    <a href="@item.Url" class="white-text">
+                        <i class="material-icons white-text">@item.Icon</i>@item.Name
+                    </a>
+                </li>
+            }
+        }
+    }
+
+    <li><div class="divider"></div></li>
+
+    <li>
+        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+            <button type="submit" class="btn-flat white-text" style="width: 100%; text-align: left; text-transform: none; padding-left: 32px;">
+                <i class="material-icons white-text" style="margin-right: 32px; vertical-align: bottom;">exit_to_app</i>Logout
+            </button>
+        </form>
+    </li>
+</ul>

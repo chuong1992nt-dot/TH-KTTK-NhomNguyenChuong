@@ -21,11 +21,14 @@ namespace ASC.Web.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        // SỬA LẠI CONSTRUCTOR ĐỂ NHẬN USERMANAGER
+        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager; 
             _logger = logger;
         }
 
@@ -113,10 +116,36 @@ namespace ASC.Web.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
+                if(result.Succeeded)
+{
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect("/ServiceRequests/Dashboard/Dashboard");
+
+                    // Lấy thông tin user vừa đăng nhập
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    bool isAdminOrEngineer = roles.Contains("Admin") || roles.Contains("Engineer");
+
+                    if (string.IsNullOrEmpty(returnUrl) || returnUrl == "/" || returnUrl == "~/")
+                    {
+                        if (isAdminOrEngineer)
+                        {
+                            return LocalRedirect("/Home/Dashboard");
+                        }
+                        else
+                        {
+                            return LocalRedirect("/");
+                        }
+                    }
+                    else
+                    {
+                        if (returnUrl.Contains("Dashboard", StringComparison.OrdinalIgnoreCase) && !isAdminOrEngineer)
+                        {
+                            return LocalRedirect("/");
+                        }
+
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 if (result.RequiresTwoFactor)
                 {
