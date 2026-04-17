@@ -22,14 +22,14 @@ namespace ASC.Web.Areas.Accounts.Controllers
             _roleManager = roleManager;
         }
 
-        // Action hiển thị danh sách Service Engineer
+        // ==========================================
+        // 1. QUẢN LÝ SERVICE ENGINEERS
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> ServiceEngineers()
         {
-            // 1. Lấy danh sách tất cả người dùng có Role là "Engineer"
             var engineers = await _userManager.GetUsersInRoleAsync("Engineer");
 
-            // 2. Đổ dữ liệu vào ViewModel để mang sang hiển thị ở View
             var model = new ServiceEngineerViewModel
             {
                 ServiceEngineers = engineers.ToList(),
@@ -46,13 +46,12 @@ namespace ASC.Web.Areas.Accounts.Controllers
             ModelState.Remove("ServiceEngineers");
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Registration.Email, Email = model.Registration.Email };
+                var user = new ApplicationUser { UserName = model.Registration.Email, Email = model.Registration.Email, IsActive = true };
                 var result = await _userManager.CreateAsync(user, model.Registration.Password);
 
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "Engineer");
-
                     return RedirectToAction("ServiceEngineers");
                 }
 
@@ -66,11 +65,12 @@ namespace ASC.Web.Areas.Accounts.Controllers
             return View(model);
         }
 
-        // GET: Hiển thị danh sách khách hàng
+        // ==========================================
+        // 2. QUẢN LÝ CUSTOMERS
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> Customers()
         {
-            // Lấy tất cả user có Role là "Customer"
             var customers = await _userManager.GetUsersInRoleAsync("Customer");
 
             var model = new CustomerViewModel
@@ -82,18 +82,16 @@ namespace ASC.Web.Areas.Accounts.Controllers
             return View(model);
         }
 
-        // POST: Thực hiện Khóa hoặc Kích hoạt khách hàng
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Customers(CustomerViewModel model)
         {
-            // Loại bỏ kiểm tra danh sách
             ModelState.Remove("Customers");
 
             var user = await _userManager.FindByEmailAsync(model.Registration.Email);
             if (user != null)
             {
-                // Cập nhật trạng thái: True (Khóa) hoặc False (Kích hoạt)
+                // Cập nhật trạng thái khóa tài khoản
                 user.LockoutEnabled = model.Registration.IsActive;
                 var result = await _userManager.UpdateAsync(user);
 
@@ -103,28 +101,30 @@ namespace ASC.Web.Areas.Accounts.Controllers
                 }
             }
 
-            // Nếu có lỗi, lấy lại danh sách và hiển thị
             model.Customers = (await _userManager.GetUsersInRoleAsync("Customer")).ToList();
             return View(model);
         }
 
-        // GET: Hiển thị trang Profile cá nhân
+        // ==========================================
+        // 3. QUẢN LÝ PROFILE CÁ NHÂN
+        // ==========================================
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.FindByEmailAsync(User.Identity.Name);
 
+            if (user == null) return NotFound();
+
             var model = new ProfileViewModel
             {
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                // Giả sử bạn đã có cột Name trong ApplicationUser
-                // Name = user.Name 
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber
             };
+
             return View(model);
         }
 
-        // POST: Xử lý cập nhật thông tin
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(ProfileViewModel model)
@@ -132,18 +132,24 @@ namespace ASC.Web.Areas.Accounts.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await _userManager.FindByEmailAsync(User.Identity.Name);
-            if (user != null)
-            {
-                user.PhoneNumber = model.PhoneNumber;
-                // user.Name = model.Name; // Cập nhật tên nếu có
+            if (user == null) return NotFound();
 
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
-                {
-                    // Thông báo thành công (có thể dùng TempData)
-                    return RedirectToAction("Profile");
-                }
+            // Cập nhật thông tin từ ViewModel vào User
+            user.FullName = model.FullName;
+            user.PhoneNumber = model.PhoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
+                return RedirectToAction("Profile");
             }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
             return View(model);
         }
     }
