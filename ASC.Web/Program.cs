@@ -25,7 +25,7 @@ builder.Services.AddScoped<DbContext, ASC.Web.Data.ApplicationDbContext>();
 
 // 2. Cấu hình Identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
@@ -66,6 +66,10 @@ builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 
 builder.Services.Configure<ASC.Web.Configuration.NavigationMenu>(builder.Configuration.GetSection("NavigationMenu"));
 
+
+builder.Services.AddScoped<ASC.Business.Interfaces.IMasterDataOperations, ASC.Business.MasterDataOperations>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -102,8 +106,26 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
+        // --- ĐOẠN CODE MỚI ĐỂ CẤP QUYỀN ADMIN ---
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        // 1. Tạo role "Admin" trong Database (nếu chưa có)
+        if (!await roleManager.RoleExistsAsync("Admin"))
+        {
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+        }
+
+        // 2. Tìm tài khoản bạn vừa đăng ký và gắn quyền Admin
+        var adminUser = await userManager.FindByEmailAsync("admin@asc.com");
+        if (adminUser != null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+        // ----------------------------------------
+
         var identitySeed = scope.ServiceProvider.GetRequiredService<IIdentitySeed>();
-        identitySeed.Seed().Wait();
+        await identitySeed.Seed();
     }
     catch (Exception ex)
     {

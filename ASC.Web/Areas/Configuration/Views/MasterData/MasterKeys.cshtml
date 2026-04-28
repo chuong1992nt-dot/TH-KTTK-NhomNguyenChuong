@@ -1,0 +1,105 @@
+﻿@model ASC.Web.Areas.Configuration.Models.MasterKeysViewModel
+@{
+    ViewData["Title"] = "Master Keys Configuration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <h4>Quản lý Nhóm Danh Mục (Master Keys)</h4>
+        <hr />
+
+        @* Form Thêm Mới *@
+        <div class="row">
+            <form asp-action="MasterKeys" asp-controller="MasterData" asp-area="Configuration" method="post" class="col s12">
+                @* Token bảo mật bắt buộc phải có để tránh lỗi 400 *@
+                @Html.AntiForgeryToken()
+
+                @* Các trường ẩn để bù đắp dữ liệu thiếu cho Model *@
+                <input type="hidden" asp-for="MasterDataKeyInContext.PartitionKey" value="temp" />
+                <input type="hidden" asp-for="MasterDataKeyInContext.RowKey" value="temp" />
+
+                <div class="row card-panel">
+                    <div class="input-field col s6">
+                        <input asp-for="MasterDataKeyInContext.Name" id="Name" type="text" class="validate" required />
+                        <label for="Name">Tên nhóm danh mục (Ví dụ: VEHICLE_TYPE)</label>
+                        <span asp-validation-for="MasterDataKeyInContext.Name" class="red-text"></span>
+                    </div>
+
+                    <div class="input-field col s3">
+                        <p>
+                            <label>
+                                @* Thêm class filled-in và thẻ span để checkbox hiện ra *@
+                                <input type="checkbox" asp-for="MasterDataKeyInContext.IsActive" class="filled-in" checked="checked" />
+                                <span>Hoạt động (Active)</span>
+                            </label>
+                        </p>
+                    </div>
+
+                    <div class="input-field col s3">
+                        <button type="submit" class="btn waves-effect waves-light green">
+                            Thêm Mới <i class="material-icons right">add</i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        @* Bảng danh sách *@
+        <div class="row">
+            <table class="highlight centered responsive-table">
+                <thead>
+                    <tr>
+                        <th>Partition Key</th>
+                        <th>Tên (Name)</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.MasterDataKeys != null && Model.MasterDataKeys.Any())
+                    {
+                        foreach (var item in Model.MasterDataKeys)
+                        {
+                            <tr>
+                                <td>@item.PartitionKey</td>
+                                <td>@item.Name</td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="chip green white-text">Đang hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="chip grey white-text">Ngừng hoạt động</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="MasterValues"
+                                       asp-controller="MasterData"
+                                       asp-area="Configuration"
+                                       asp-route-partitionKey="@item.PartitionKey"
+                                       class="btn-small waves-effect waves-light blue">
+                                        <i class="material-icons left">list</i> Xem giá trị
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="center-align">Chưa có dữ liệu nào. Hãy thêm nhóm đầu tiên!</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
