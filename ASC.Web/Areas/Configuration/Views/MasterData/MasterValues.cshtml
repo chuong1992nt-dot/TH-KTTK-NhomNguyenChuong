@@ -1,18 +1,19 @@
-﻿@model ASC.Web.Areas.Configuration.Models.MasterKeysViewModel
+﻿@model ASC.Web.Areas.Configuration.Models.MasterValuesViewModel
 @{
-    ViewData["Title"] = "Master Keys Configuration";
+    ViewData["Title"] = "Master Values Configuration";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container">
     <div class="row">
-        <h4>Quản lý Nhóm Danh Mục (Master Keys)</h4>
+        <h4>Quản lý Giá Trị Danh Mục (Master Values)</h4>
+        <p class="grey-text">Nhóm: <strong>@Model.MasterDataValueInContext.PartitionKey</strong></p>
         <hr />
 
         @* Form Thêm Mới *@
         <div class="row">
-            <form id="frmMasterKey"
-                  asp-action="MasterKeys"
+            <form id="frmMasterValue"
+                  asp-action="MasterValues"
                   asp-controller="MasterData"
                   asp-area="Configuration"
                   method="post"
@@ -20,33 +21,42 @@
 
                 @Html.AntiForgeryToken()
 
-                <input type="hidden" name="MasterDataKeyInContext.PartitionKey" value="temp" />
-                <input type="hidden" name="MasterDataKeyInContext.RowKey" value="temp" />
+                <input type="hidden"
+                       name="MasterDataValueInContext.PartitionKey"
+                       value="@Model.MasterDataValueInContext.PartitionKey" />
 
                 <div class="row card-panel">
-                    <div class="input-field col s6">
+                    <div class="input-field col s4">
                         <input type="text"
                                id="Name"
-                               name="MasterDataKeyInContext.Name"
+                               name="MasterDataValueInContext.Name"
                                class="validate" />
-                        <label for="Name">Tên nhóm danh mục (Ví dụ: VEHICLE_TYPE)</label>
+                        <label for="Name">Tên giá trị (Ví dụ: Xe máy)</label>
                     </div>
 
-                    <div class="input-field col s3" style="margin-top:20px;">
+                    <div class="input-field col s4">
+                        <input type="text"
+                               id="Value"
+                               name="MasterDataValueInContext.Value"
+                               class="validate" />
+                        <label for="Value">Giá trị (Ví dụ: MOTORBIKE)</label>
+                    </div>
+
+                    @* THÊM CHECKBOX ISACTIVE *@
+                    <div class="input-field col s2" style="margin-top:20px;">
                         <label>
                             <input type="checkbox"
-                                   id="IsActive"
-                                   name="MasterDataKeyInContext.IsActive"
+                                   name="MasterDataValueInContext.IsActive"
                                    value="true"
                                    class="filled-in"
                                    checked="checked" />
-                            <span>Hoạt động (Active)</span>
+                            <span>Hoạt động</span>
                         </label>
                     </div>
 
-                    <div class="input-field col s3">
+                    <div class="input-field col s2">
                         <button type="submit"
-                                form="frmMasterKey"
+                                form="frmMasterValue"
                                 class="btn waves-effect waves-light green">
                             Thêm Mới <i class="material-icons right">add</i>
                         </button>
@@ -62,18 +72,19 @@
                     <tr>
                         <th>Partition Key</th>
                         <th>Tên (Name)</th>
+                        <th>Giá trị (Value)</th>
                         <th>Trạng thái</th>
-                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model.MasterDataKeys != null && Model.MasterDataKeys.Any())
+                    @if (Model.MasterDataValues != null && Model.MasterDataValues.Any())
                     {
-                        foreach (var item in Model.MasterDataKeys)
+                        foreach (var item in Model.MasterDataValues)
                         {
                             <tr>
                                 <td>@item.PartitionKey</td>
                                 <td>@item.Name</td>
+                                <td>@item.Value</td>
                                 <td>
                                     @if (item.IsActive)
                                     {
@@ -84,38 +95,41 @@
                                         <span class="chip grey white-text">Ngừng hoạt động</span>
                                     }
                                 </td>
-                                <td>
-                                    <a href="/Configuration/MasterData/MasterValues?partitionKey=@item.PartitionKey"
-                                       class="btn-small waves-effect waves-light blue">
-                                        <i class="material-icons left">list</i> Xem giá trị
-                                    </a>
-                                </td>
                             </tr>
                         }
                     }
                     else
                     {
                         <tr>
-                            <td colspan="4" class="center-align">Chưa có dữ liệu nào. Hãy thêm nhóm đầu tiên!</td>
+                            <td colspan="4" class="center-align">Chưa có giá trị nào. Hãy thêm giá trị đầu tiên!</td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
+
+        <div class="row">
+            <a asp-action="MasterKeys"
+               asp-controller="MasterData"
+               asp-area="Configuration"
+               class="btn waves-effect waves-light grey">
+                <i class="material-icons left">arrow_back</i> Quay lại
+            </a>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Đảm bảo form submit đúng cách
-        document.getElementById('frmMasterKey').addEventListener('submit', function (e) {
+        document.getElementById('frmMasterValue').addEventListener('submit', function (e) {
             var name = document.getElementById('Name').value.trim();
-            if (!name) {
+            var value = document.getElementById('Value').value.trim();
+            if (!name || !value) {
                 e.preventDefault();
-                alert('Vui lòng nhập tên nhóm danh mục!');
+                alert('Vui lòng nhập đầy đủ Tên và Giá trị!');
                 return false;
             }
-            console.log('Form submitting với Name:', name);
+            console.log('Submitting - Name:', name, 'Value:', value);
         });
     </script>
     @{

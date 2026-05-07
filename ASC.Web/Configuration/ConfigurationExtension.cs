@@ -1,4 +1,6 @@
-﻿using ASC.DataAccess.Interfaces;
+﻿using ASC.Business;
+using ASC.Business.Interfaces;
+using ASC.DataAccess.Interfaces;
 using ASC.DataAccess.Repository;
 using ASC.Web.Data;
 using ASC.Web.Models;
@@ -25,7 +27,8 @@ namespace ASC.Web.Configuration
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.AddSession();
-
+            services.AddScoped<IMasterDataOperations, MasterDataOperations>();
+            services.AddAutoMapper(typeof(ApplicationDbContext));
             return services;
         }
     }

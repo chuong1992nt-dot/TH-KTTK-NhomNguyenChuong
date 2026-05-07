@@ -8,5 +8,6 @@ namespace ASC.Model.Models
         [Key]
         public string Name { get; set; }
         public bool IsActive { get; set; }
+        public string Value { get; set; }
     }
 }

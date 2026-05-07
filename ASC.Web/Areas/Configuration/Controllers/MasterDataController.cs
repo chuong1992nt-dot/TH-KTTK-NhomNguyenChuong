@@ -47,7 +47,15 @@ namespace ASC.Web.Areas.Configuration.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MasterKeys(MasterKeysViewModel model)
         {
-            // Loại bỏ kiểm tra để tránh lỗi 400
+            // THÊM NULL CHECK
+            if (model.MasterDataKeyInContext == null)
+            {
+                model.MasterDataKeyInContext = new MasterDataKeyViewModel { IsActive = true };
+                var keys0 = await _masterData.GetMasterDataKeysAsync();
+                model.MasterDataKeys = _mapper.Map<List<MasterDataKeyViewModel>>(keys0);
+                return View(model);
+            }
+
             ModelState.Remove("MasterDataKeyInContext.PartitionKey");
             ModelState.Remove("MasterDataKeyInContext.RowKey");
             ModelState.Remove("MasterDataKeys");
@@ -61,16 +69,19 @@ namespace ASC.Web.Areas.Configuration.Controllers
 
             // KHỞI TẠO MỚI HOÀN TOÀN ĐỂ TRÁNH LỖI NULL MAPPPIING
             var masterDataKey = new MasterDataKey();
-
-            // Gán trực tiếp từ model.MasterDataKeyInContext (Đây là nơi chứa dữ liệu bạn nhập từ web)
             masterDataKey.Name = model.MasterDataKeyInContext.Name;
             masterDataKey.IsActive = model.MasterDataKeyInContext.IsActive;
-
-            // Gán 2 khóa quan trọng
             masterDataKey.PartitionKey = model.MasterDataKeyInContext.Name;
-            masterDataKey.RowKey = Guid.NewGuid().ToString();
 
-            // Lưu vào Database
+            // SỬA: Gán RowKey qua property của BaseEntity
+            masterDataKey.RowKey = Guid.NewGuid().ToString(); // Dòng này giữ nguyên
+
+            masterDataKey.CreatedDate = DateTime.UtcNow;
+            masterDataKey.UpdatedDate = DateTime.UtcNow;
+            masterDataKey.CreatedBy = User.Identity?.Name ?? "admin";
+            masterDataKey.UpdatedBy = User.Identity?.Name ?? "admin";
+            masterDataKey.IsDeleted = false;
+
             await _masterData.InsertMasterDataKeyAsync(masterDataKey);
 
             return RedirectToAction("MasterKeys");
@@ -111,8 +122,17 @@ namespace ASC.Web.Areas.Configuration.Controllers
                 return View(model);
             }
 
-            var masterDataValue = _mapper.Map<MasterDataValue>(model.MasterDataValueInContext);
+            var masterDataValue = new MasterDataValue();
+            masterDataValue.Name = model.MasterDataValueInContext.Name;
+            masterDataValue.Value = model.MasterDataValueInContext.Value;
+            masterDataValue.IsActive = model.MasterDataValueInContext.IsActive;
+            masterDataValue.PartitionKey = model.MasterDataValueInContext.PartitionKey;
             masterDataValue.RowKey = Guid.NewGuid().ToString();
+            masterDataValue.CreatedDate = DateTime.UtcNow;
+            masterDataValue.UpdatedDate = DateTime.UtcNow;
+            masterDataValue.CreatedBy = User.Identity?.Name ?? "admin";
+            masterDataValue.UpdatedBy = User.Identity?.Name ?? "admin";
+            masterDataValue.IsDeleted = false;
 
             await _masterData.InsertMasterDataValueAsync(masterDataValue);
 

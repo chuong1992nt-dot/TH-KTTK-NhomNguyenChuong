@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ASC.DataAccess.Interfaces;
+﻿using ASC.DataAccess.Interfaces;
 using ASC.Model.BaseTypes;
 using Microsoft.EntityFrameworkCore;
-using ASC.DataAccess;
 
 namespace ASC.DataAccess.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly DbContext dbContext;
-        private Dictionary<string, object> repositories; // Lưu cache các repository đã gọi
+        private Dictionary<string, object> repositories;
 
+        // SỬA: Nhận DbContext abstract (đã được đăng ký đúng trong Program.cs)
         public UnitOfWork(DbContext context)
         {
             dbContext = context;
@@ -21,27 +18,26 @@ namespace ASC.DataAccess.Repository
         public IRepository<T> Repository<T>() where T : BaseEntity
         {
             if (repositories == null)
-            {
                 repositories = new Dictionary<string, object>();
-            }
 
             var type = typeof(T).Name;
-
-            // Nếu Repository chưa được tạo, thì khởi tạo nó
             if (!repositories.ContainsKey(type))
             {
                 var repositoryType = typeof(Repository<>);
-                var repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(T)), dbContext);
+                var repositoryInstance = Activator.CreateInstance(
+                    repositoryType.MakeGenericType(typeof(T)), dbContext);
                 repositories.Add(type, repositoryInstance);
             }
-
             return (IRepository<T>)repositories[type];
         }
 
         public async Task<int> CommitTransactionAsync()
         {
-            // Nơi xử lý lưu thay đổi xuống Database
-            return await dbContext.SaveChangesAsync();
+            // THÊM LOG ĐỂ DEBUG
+            Console.WriteLine($">>> DANG LUU VAO DB: {dbContext.GetType().Name}");
+            var result = await dbContext.SaveChangesAsync();
+            Console.WriteLine($">>> SO DONG DA LUU: {result}");
+            return result;
         }
 
         public void Dispose()
