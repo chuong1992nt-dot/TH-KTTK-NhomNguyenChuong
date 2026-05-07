@@ -4,50 +4,114 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ASC Admin</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - ASC Admin
+    </title>
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- MATERIALIZE -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+
+    <!-- SITE CSS -->
     <link rel="stylesheet" href="~/css/site.css" />
+
 </head>
+
 <body class="secure-body">
+
+    <!-- NAVBAR -->
     <header>
+
         <nav class="blue darken-3">
+
             <div class="nav-wrapper">
-                <a href="@Url.Action("Index", "Home", new { area = "" })" class="brand-logo" style="display:flex; align-items:center; height:100%; padding-left:20px;">
-                    <img src="/images/logo.png" style="height:35px; width:auto; margin-right:10px;">
-                    <span style="font-size:1.1rem">ASC Admin</span>
+
+                <a href="@Url.Action("Index", "Home", new { area = "" })"
+                   class="brand-logo"
+                   style="display:flex;
+                          align-items:center;
+                          gap:10px;
+                          padding-left:20px;">
+
+                    <img src="/images/logo.png"
+                         style="height:35px;
+                                width:auto;" />
+
+                    <span style="font-size:1.1rem">
+                        ASC Admin
+                    </span>
+
                 </a>
+
             </div>
+
         </nav>
 
         @await Component.InvokeAsync("LeftNavigation")
 
     </header>
 
+    <!-- MAIN -->
     <main>
+
         <div class="container">
+
             @RenderBody()
+
         </div>
+
     </main>
 
+    <!-- FOOTER -->
     <footer class="page-footer grey darken-2">
+
         <div class="footer-copyright">
+
             <div class="container">
-                Powered by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+
+                Powered by
+                <a class="orange-text text-lighten-3"
+                   href="http://materializecss.com">
+
+                    Materialize
+
+                </a>
+
             </div>
+
         </div>
+
     </footer>
 
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
+    <!-- SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     <script>
-        $(document).ready(function(){
+
+        $(document).ready(function () {
+
             $('.sidenav').sidenav();
+
         });
+
     </script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
+
 </html>

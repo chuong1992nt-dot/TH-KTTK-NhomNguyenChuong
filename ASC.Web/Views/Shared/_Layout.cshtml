@@ -14,76 +14,241 @@
     <title>
         @ViewData["Title"] - @_configurationSettings.Value.ApplicationTitle
     </title>
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
-</head>
+    <style>
+        /* Active nav link highlight */
+        nav ul li a.active-link {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        /* Sidenav subheader spacing */
+        .sidenav .subheader {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: #90a4ae !important;
+            padding-left: 16px;
+            margin-top: 8px;
+        }
 
+        .sidenav li > a {
+            padding: 0 16px;
+        }
+
+            .sidenav li > a i.material-icons {
+                margin-right: 10px;
+                font-size: 1.2rem;
+                vertical-align: middle;
+            }
+    </style>
+</head>
 <body>
+    <!-- ===================== DESKTOP NAVBAR ===================== -->
     <nav class="blue darken-2">
         <div class="nav-wrapper container">
+            <!-- Logo -->
             <a href="/" class="brand-logo" style="display: flex; align-items: center; height: 100%;">
                 <img src="/images/carlogo.png"
                      alt="Logo"
                      width="40"
                      height="40"
                      style="object-fit: contain; margin-right: 10px; flex-shrink: 0;">
-
                 <span class="logo-text" style="font-size: 1.2rem; white-space: nowrap;">
                     @_configurationSettings.Value.ApplicationTitle
                 </span>
             </a>
 
-            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <!-- Mobile menu trigger -->
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger">
+                <i class="material-icons">menu</i>
+            </a>
 
+            <!-- Desktop links -->
             <ul class="right hide-on-med-and-down">
-                <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
 
-                @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Engineer")))
+                <!-- Home - luôn hiển thị -->
+                <li>
+                    <a asp-area="" asp-controller="Home" asp-action="Index">
+                        Home
+                    </a>
+                </li>
+
+                @if (SignInManager.IsSignedIn(User))
                 {
-                    <li><a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard">Dashboard Quản Trị</a></li>
+                    @* ===== CHỈ ADMIN ===== *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a asp-area="" asp-controller="Dashboard" asp-action="ProvisionUser">
+                                Cấp Phép Tài Khoản
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Dashboard" asp-action="UserAdministration">
+                                Quản Lý Users
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Configuration" asp-controller="MasterData" asp-action="MasterKeys">
+                                Master Keys
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Configuration" asp-controller="MasterData" asp-action="MasterValues">
+                                Master Values
+                            </a>
+                        </li>
+                    }
+
+                    @* ===== ADMIN + ENGINEER ===== *@
+                    @if (User.IsInRole("Admin") || User.IsInRole("Engineer"))
+                    {
+                        <li>
+                            <a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard">
+                                Dashboard Quản Trị
+                            </a>
+                        </li>
+                    }
+
+                    @* ===== TẤT CẢ ROLES (đã đăng nhập) ===== *@
+                    <li>
+                        <a asp-area="ServiceRequests"
+                           asp-controller="ServiceRequest"
+                           asp-action="ServiceRequest">
+                            New Service Request
+                        </a>
+                    </li>
                 }
 
-                <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                <!-- Privacy - luôn hiển thị -->
+                <li>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </li>
 
                 <partial name="_LoginPartial" />
             </ul>
         </div>
     </nav>
 
+    <!-- ===================== MOBILE SIDENAV ===================== -->
     <ul class="sidenav" id="mobile-demo">
-        <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
 
-        @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Engineer")))
+        <!-- Home -->
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index">
+                <i class="material-icons">home</i> Home
+            </a>
+        </li>
+
+        @if (SignInManager.IsSignedIn(User))
         {
-            <li><a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard">Dashboard Quản Trị</a></li>
+            @* ===== CHỈ ADMIN ===== *@
+            @if (User.IsInRole("Admin"))
+            {
+                <li><div class="divider"></div></li>
+                <li><a class="subheader">User Management</a></li>
+
+                <li>
+                    <a asp-area="" asp-controller="Dashboard" asp-action="ProvisionUser">
+                        <i class="material-icons">person_add</i> Cấp Phép Tài Khoản
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="" asp-controller="Dashboard" asp-action="UserAdministration">
+                        <i class="material-icons">group</i> Quản Lý Users
+                    </a>
+                </li>
+
+                <li><div class="divider"></div></li>
+                <li><a class="subheader">Master Data</a></li>
+
+                <li>
+                    <a asp-area="Configuration" asp-controller="MasterData" asp-action="MasterKeys">
+                        <i class="material-icons">vpn_key</i> Master Keys
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Configuration" asp-controller="MasterData" asp-action="MasterValues">
+                        <i class="material-icons">format_list_bulleted</i> Master Values
+                    </a>
+                </li>
+            }
+
+            @* ===== ADMIN + ENGINEER ===== *@
+            @if (User.IsInRole("Admin") || User.IsInRole("Engineer"))
+            {
+                <li><div class="divider"></div></li>
+                <li><a class="subheader">Service Requests</a></li>
+
+                <li>
+                    <a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard">
+                        <i class="material-icons">dashboard</i> Dashboard Quản Trị
+                    </a>
+                </li>
+            }
+
+            @* ===== TẤT CẢ ROLES (đã đăng nhập) ===== *@
+            @if (User.IsInRole("Customer"))
+            {
+                <li><div class="divider"></div></li>
+                <li><a class="subheader">Service Requests</a></li>
+            }
+
+            <li>
+                <a asp-area="ServiceRequests"
+                   asp-controller="ServiceRequest"
+                   asp-action="ServiceRequest">
+                    <i class="material-icons">add_circle</i> New Service Request
+                </a>
+            </li>
         }
 
-        <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+        <li><div class="divider"></div></li>
+
+        <!-- Privacy -->
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">
+                <i class="material-icons">lock</i> Privacy
+            </a>
+        </li>
 
         <partial name="_LoginPartial" />
     </ul>
 
+    <!-- ===================== NỘI DUNG TRANG ===================== -->
     <div class="container" style="margin-top:30px">
         @RenderBody()
     </div>
 
+    <!-- ===================== FOOTER ===================== -->
     <footer class="page-footer blue darken-2">
         <div class="container center">
-            © 2026 - @_configurationSettings.Value.ApplicationTitle
+            &copy; 2026 - @_configurationSettings.Value.ApplicationTitle
         </div>
     </footer>
 
+    <!-- ===================== SCRIPTS ===================== -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="~/js/init.js"></script>
-
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
+            // Khởi tạo sidenav cho mobile
             $('.sidenav').sidenav();
+
+            // Highlight link đang active
+            var currentPath = window.location.pathname.toLowerCase();
+            $('nav ul li a, .sidenav li a').each(function () {
+                var href = $(this).attr('href');
+                if (href && href !== '/' && currentPath.startsWith(href.toLowerCase())) {
+                    $(this).addClass('active-link');
+                }
+            });
         });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+s

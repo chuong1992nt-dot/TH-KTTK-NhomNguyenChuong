@@ -5,55 +5,110 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 
-<ul id="slide-out" class="sidenav sidenav-fixed grey darken-1">
+<ul id="slide-out" class="sidenav sidenav-fixed grey darken-2">
+
+    <!-- USER INFO -->
     <li>
         <div class="user-view">
-            <div class="background grey darken-2"></div>
-            <a href="#user"><img class="circle" src="/images/avatar.png" onerror="this.src='https://via.placeholder.com/100'"></a>
+
+            <div class="background grey darken-3"></div>
+
+            <a href="#user">
+                <img class="circle"
+                     src="/images/avatar.png"
+                     onerror="this.src='https://via.placeholder.com/100'">
+            </a>
 
             @if (SignInManager.IsSignedIn(User))
             {
                 var currentUser = await UserManager.GetUserAsync(User);
+
                 if (currentUser != null)
                 {
-                    <a href="#name"><span class="white-text name">@currentUser.Email.Split('@')[0]</span></a>
-                    <a href="#email"><span class="white-text email">@currentUser.Email</span></a>
+                    <a href="#name">
+                        <span class="white-text name">
+                            @currentUser.Email.Split('@')[0]
+                        </span>
+                    </a>
+
+                    <a href="#email">
+                        <span class="white-text email">
+                            @currentUser.Email
+                        </span>
+                    </a>
                 }
             }
             else
             {
-                <a href="#name"><span class="white-text name">Guest User</span></a>
-                <a href="#email"><span class="white-text email">guest@asc.com</span></a>
+                <a href="#name">
+                    <span class="white-text name">
+                        Guest User
+                    </span>
+                </a>
+
+                <a href="#email">
+                    <span class="white-text email">
+                        guest@asc.com
+                    </span>
+                </a>
             }
+
         </div>
     </li>
 
+    <!-- MENU -->
     @if (Model != null && Model.MenuItems != null)
     {
         foreach (var item in Model.MenuItems)
         {
-            var allowedRoles = item.AllowedRoles.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(r => r.Trim());
+            var allowedRoles = item.AllowedRoles
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(r => r.Trim());
 
             bool hasAccess = allowedRoles.Any(role => User.IsInRole(role));
 
             if (hasAccess)
             {
                 <li>
-                    <a href="@item.Url" class="white-text">
-                        <i class="material-icons white-text">@item.Icon</i>@item.Name
+
+                    <a href="@item.Url"
+                       class="white-text menu-link">
+
+                        <i class="@item.Icon menu-icon"></i>
+
+                        <span>@item.Name</span>
+
                     </a>
+
                 </li>
             }
         }
     }
 
-    <li><div class="divider"></div></li>
-
+    <!-- DIVIDER -->
     <li>
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-            <button type="submit" class="btn-flat white-text" style="width: 100%; text-align: left; text-transform: none; padding-left: 32px;">
-                <i class="material-icons white-text" style="margin-right: 32px; vertical-align: bottom;">exit_to_app</i>Logout
-            </button>
-        </form>
+        <div class="divider"></div>
     </li>
+
+    <!-- LOGOUT -->
+    <li>
+
+        <form asp-area="Identity"
+              asp-page="/Account/Logout"
+              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+              method="post">
+
+            <button type="submit"
+                    class="btn-flat white-text logout-btn">
+
+                <i class="fas fa-right-from-bracket menu-icon"></i>
+
+                <span>Logout</span>
+
+            </button>
+
+        </form>
+
+    </li>
+
 </ul>

@@ -3,56 +3,56 @@
     "MenuItems": [
       {
         "Name": "Dashboard",
-        "Url": "/Home/Dashboard",
-        "Icon": "dashboard",
+        "Url": "/ServiceRequests/Dashboard/Dashboard",
+        "Icon": "fas fa-gauge",
         "AllowedRoles": "Admin,Engineer,Customer"
       },
       {
         "Name": "User Administration",
         "Url": "/Dashboard/UserAdministration",
-        "Icon": "people",
+        "Icon": "fas fa-users",
         "AllowedRoles": "Admin"
       },
       {
         "Name": "Customers",
-        "Url": "#!",
-        "Icon": "assignment_ind",
+        "Url": "/Dashboard/Customers",
+        "Icon": "fas fa-user-group",
         "AllowedRoles": "Admin"
       },
       {
         "Name": "Provision User",
         "Url": "/Dashboard/ProvisionUser",
-        "Icon": "person_add",
+        "Icon": "fas fa-user-plus",
         "AllowedRoles": "Admin"
       },
       {
         "Name": "Deactivate User",
-        "Url": "#!",
-        "Icon": "person_outline",
+        "Url": "/Dashboard/DeactivateUser",
+        "Icon": "fas fa-user-slash",
         "AllowedRoles": "Admin"
       },
       {
         "Name": "Service Requests",
-        "Url": "#!",
-        "Icon": "build",
+        "Url": "/ServiceRequests/ServiceRequest/ServiceRequest",
+        "Icon": "fas fa-screwdriver-wrench",
         "AllowedRoles": "Admin,Engineer,Customer"
       },
       {
         "Name": "Service Notifications",
-        "Url": "#!",
-        "Icon": "notifications",
+        "Url": "/Dashboard/ServiceNotifications",
+        "Icon": "fas fa-bell",
         "AllowedRoles": "Admin,Engineer,Customer"
       },
       {
         "Name": "Promotions",
-        "Url": "#!",
-        "Icon": "card_giftcard",
+        "Url": "/Dashboard/Promotions",
+        "Icon": "fas fa-gift",
         "AllowedRoles": "Admin,Customer"
       },
       {
         "Name": "Settings",
-        "Url": "#!",
-        "Icon": "settings",
+        "Url": "/Dashboard/Settings",
+        "Icon": "fas fa-gear",
         "AllowedRoles": "Admin,Engineer"
       }
     ]
