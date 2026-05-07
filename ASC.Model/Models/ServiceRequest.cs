@@ -6,11 +6,13 @@ namespace ASC.Model.Models
 {
     public class ServiceRequest : BaseEntity
     {
-        [Key]
-        public string VehicleName { get; set; }
-        public string VehicleType { get; set; }
-        public string ServicePlan { get; set; }
-        public DateTime RequestedDate { get; set; }
-        public string Status { get; set; }
+        public string? RequestedServices { get; set; }
+        public string? SubRequestedServices { get; set; }
+        public string? RequestedDate { get; set; }
+        public string? VehicleType { get; set; }
+        public string? VehicleRegNo { get; set; }
+        public string? Status { get; set; }
+        public string? CustomerContact { get; set; }
+        public bool IsRead { get; set; }
     }
 }

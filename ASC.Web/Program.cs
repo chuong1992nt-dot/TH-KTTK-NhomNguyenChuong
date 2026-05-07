@@ -1,10 +1,11 @@
+using ASC.Business.Interfaces;
 using ASC.DataAccess;
 using ASC.DataAccess.Interfaces;
 using ASC.DataAccess.Repository;
 using ASC.Web.Configuration;
 using ASC.Web.Data;
-using ASC.Web.Services;
 using ASC.Web.Models;
+using ASC.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -126,6 +127,11 @@ using (var scope = app.Services.CreateScope())
 
         var identitySeed = scope.ServiceProvider.GetRequiredService<IIdentitySeed>();
         await identitySeed.Seed();
+
+        // ----------------------------------------
+
+        var masterDataCache = scope.ServiceProvider.GetRequiredService<IMasterDataCacheOperations>();
+        await masterDataCache.CreateMasterDataCacheAsync();
     }
     catch (Exception ex)
     {

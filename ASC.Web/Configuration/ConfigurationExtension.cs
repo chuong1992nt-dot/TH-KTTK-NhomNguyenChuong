@@ -15,7 +15,11 @@ namespace ASC.Web.Configuration
         {
             services.AddOptions();
             services.Configure<ApplicationSettings>(config.GetSection("AppSettings"));
-
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = config["RedisCache:ConnectionString"];
+                options.InstanceName = config["RedisCache:InstanceName"];
+            }); 
             return services;
         }
 
@@ -29,6 +33,8 @@ namespace ASC.Web.Configuration
             services.AddSession();
             services.AddScoped<IMasterDataOperations, MasterDataOperations>();
             services.AddAutoMapper(typeof(ApplicationDbContext));
+            services.AddScoped<IMasterDataCacheOperations, MasterDataCacheOperations>();
+            services.AddScoped<IServiceRequestOperations, ServiceRequestOperations>();
             return services;
         }
     }

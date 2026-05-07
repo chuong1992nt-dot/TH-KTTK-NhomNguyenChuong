@@ -1,0 +1,102 @@
+﻿@model ASC.Web.Areas.ServiceRequests.Models.NewServiceRequestViewModel
+@{
+    ViewData["Title"] = "New Service Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <h4>Yêu Cầu Dịch Vụ Mới (New Service Request)</h4>
+        <hr />
+
+        <form id="frmServiceRequest"
+              asp-action="ServiceRequest"
+              asp-controller="ServiceRequest"
+              asp-area="ServiceRequests"
+              method="post"
+              class="col s12">
+
+            @Html.AntiForgeryToken()
+
+            <div class="row card-panel">
+
+                <div class="input-field col s6">
+                    <select id="RequestedServices"
+                            name="RequestedServices"
+                            class="browser-default">
+                        <option value="">-- Chọn dịch vụ --</option>
+                        @if (Model.ServicesList != null)
+                        {
+                            foreach (var item in Model.ServicesList)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                    <label>Dịch vụ yêu cầu</label>
+                </div>
+
+                <div class="input-field col s6">
+                    <select id="VehicleType"
+                            name="VehicleType"
+                            class="browser-default">
+                        <option value="">-- Chọn loại xe --</option>
+                        @if (Model.VehicleTypeList != null)
+                        {
+                            foreach (var item in Model.VehicleTypeList)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                    <label>Loại xe</label>
+                </div>
+
+                <div class="input-field col s6">
+                    <input type="text"
+                           id="VehicleRegNo"
+                           name="VehicleRegNo"
+                           class="validate" />
+                    <label for="VehicleRegNo">Biển số xe</label>
+                </div>
+
+                <div class="input-field col s6">
+                    <input type="text"
+                           id="RequestedDate"
+                           name="RequestedDate"
+                           class="validate datepicker" />
+                    <label for="RequestedDate">Ngày yêu cầu</label>
+                </div>
+
+                <div class="input-field col s6">
+                    <input type="text"
+                           id="CustomerContact"
+                           name="CustomerContact"
+                           class="validate" />
+                    <label for="CustomerContact">Số điện thoại liên hệ</label>
+                </div>
+
+                <div class="input-field col s12">
+                    <button type="submit"
+                            form="frmServiceRequest"
+                            class="btn waves-effect waves-light green">
+                        Gửi Yêu Cầu <i class="material-icons right">send</i>
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="row">
+                <div class="col s12">
+                    <div class="card-panel green white-text">
+                        @ViewBag.Message
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
