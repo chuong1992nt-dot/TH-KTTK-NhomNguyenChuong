@@ -10,7 +10,9 @@
     }
 }
 
-/* BODY */
+/* =========================
+   BODY
+========================= */
 
 body {
     margin: 0;
@@ -21,20 +23,34 @@ body {
     flex-direction: column;
 }
 
-/* MAIN */
+/* =========================
+   MAIN
+========================= */
 
 main {
     flex: 1 0 auto;
     padding-top: 20px;
 }
 
-/* NAVBAR */
+/* =========================
+   NAVBAR
+========================= */
 
 nav {
     background-color: #1565c0 !important;
 }
 
-/* SIDEBAR */
+.nav-wrapper .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
 
 .sidenav {
     width: 280px;
@@ -56,7 +72,9 @@ nav {
     }
 }
 
-/* USER INFO */
+/* =========================
+   USER INFO
+========================= */
 
 .user-view {
     padding-bottom: 20px !important;
@@ -76,7 +94,9 @@ nav {
         opacity: 0.9;
     }
 
-/* MENU */
+/* =========================
+   MENU
+========================= */
 
 .menu-link,
 .sidenav li a {
@@ -86,22 +106,27 @@ nav {
     font-size: 15px !important;
     font-weight: 500 !important;
     color: white !important;
+    text-decoration: none !important;
 }
 
     .sidenav li a:hover {
         background-color: rgba(255,255,255,0.1) !important;
     }
 
-/* FONT AWESOME ICON */
+/* =========================
+   FONT AWESOME ICON
+========================= */
 
 .menu-icon {
     width: 22px;
     min-width: 22px;
     text-align: center;
-    font-size: 18px;
+    font-size: 18px !important;
 }
 
-/* LOGOUT */
+/* =========================
+   LOGOUT BUTTON
+========================= */
 
 .logout-btn {
     width: 100%;
@@ -118,7 +143,9 @@ nav {
         background-color: rgba(255,255,255,0.1) !important;
     }
 
-/* FORM */
+/* =========================
+   FORM VALIDATION
+========================= */
 
 .input-field .input-validation-error {
     border-bottom: 1px solid #ff4081 !important;
@@ -134,28 +161,112 @@ nav {
     color: #ff4081;
 }
 
-/* CARD */
+/* =========================
+   CARD
+========================= */
 
 .card {
     border-radius: 8px;
 }
 
-/* TABLE */
+/* =========================
+   TABLE
+========================= */
 
 table.highlight tbody tr:hover {
     background-color: rgba(0,0,0,0.03);
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER
+========================= */
 
 .page-footer {
     margin-top: 20px;
     background-color: #424242 !important;
 }
 
-/* ACTIVE LINK */
+/* =========================
+   ACTIVE MENU
+========================= */
 
 .active-link {
     background-color: rgba(255,255,255,0.15) !important;
     border-radius: 4px;
+}
+
+/* =========================
+   FORM FIX
+========================= */
+
+.input-field {
+    position: relative;
+}
+
+    /* ICON PREFIX */
+
+    .input-field .prefix {
+        position: absolute !important;
+        left: 0 !important;
+        top: 12px !important;
+        width: 3rem !important;
+        text-align: center !important;
+        font-size: 20px !important;
+        color: #616161 !important;
+        line-height: normal !important;
+    }
+
+    /* INPUT */
+
+    .input-field input,
+    .input-field textarea {
+        margin-left: 3rem !important;
+        width: calc(100% - 3rem) !important;
+    }
+
+    /* LABEL */
+
+    .input-field label {
+        margin-left: 3rem !important;
+    }
+
+/* SELECT */
+
+.select-wrapper input.select-dropdown {
+    margin-left: 3rem !important;
+    width: calc(100% - 3rem) !important;
+}
+
+/* SELECT ICON */
+
+.select-wrapper + .prefix {
+    top: 14px !important;
+}
+
+/* BUTTON */
+
+.btn,
+.btn-large {
+    border-radius: 4px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media only screen and (max-width: 600px) {
+
+    .menu-link,
+    .sidenav li a {
+        font-size: 14px !important;
+    }
+
+    .menu-icon {
+        font-size: 16px !important;
+    }
+
+    .input-field input,
+    .input-field textarea {
+        width: calc(100% - 2.5rem) !important;
+    }
 }
