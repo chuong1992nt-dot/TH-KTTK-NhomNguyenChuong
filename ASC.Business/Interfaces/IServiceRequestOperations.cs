@@ -8,5 +8,8 @@ namespace ASC.Business.Interfaces
     {
         Task<ServiceRequest> CreateServiceRequestAsync(ServiceRequest serviceRequest);
         Task<List<ServiceRequest>> GetServiceRequestsAsync();
+        Task<List<ServiceRequest>> GetServiceRequestsByCustomerAsync(string customerId);
+        Task<List<ServiceRequest>> GetServiceRequestsByEngineerAsync(string engineerId);
+        Task<List<ServiceRequest>> GetAllServiceRequestsAsync();
     }
 }

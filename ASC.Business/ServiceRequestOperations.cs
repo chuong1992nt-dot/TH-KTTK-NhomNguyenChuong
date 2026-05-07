@@ -30,5 +30,27 @@ namespace ASC.Business
             var requests = await repository.GetAllAsync();
             return requests.ToList();
         }
+
+        // Thêm 3 method còn thiếu
+        public async Task<List<ServiceRequest>> GetAllServiceRequestsAsync()
+        {
+            var repository = _unitOfWork.Repository<ServiceRequest>();
+            var requests = await repository.GetAllAsync();
+            return requests.Where(r => !r.IsDeleted).ToList();
+        }
+
+        public async Task<List<ServiceRequest>> GetServiceRequestsByCustomerAsync(string customerId)
+        {
+            var repository = _unitOfWork.Repository<ServiceRequest>();
+            var requests = await repository.GetAllAsync();
+            return requests.Where(r => r.CustomerCode == customerId && !r.IsDeleted).ToList();
+        }
+
+        public async Task<List<ServiceRequest>> GetServiceRequestsByEngineerAsync(string engineerId)
+        {
+            var repository = _unitOfWork.Repository<ServiceRequest>();
+            var requests = await repository.GetAllAsync();
+            return requests.Where(r => r.ServiceEngineer == engineerId && !r.IsDeleted).ToList();
+        }
     }
 }

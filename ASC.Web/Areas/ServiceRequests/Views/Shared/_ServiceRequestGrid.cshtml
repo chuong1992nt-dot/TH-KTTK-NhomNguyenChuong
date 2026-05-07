@@ -1,0 +1,38 @@
+﻿@model List<ASC.Model.Models.ServiceRequest>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Request #</th>
+            <th>Vehicle Type</th>
+            <th>Vehicle Reg No</th>
+            <th>Requested Services</th>
+            <th>Status</th>
+            <th>Requested Date</th>
+            <th>Service Engineer</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.RowKey</td>
+                    <td>@item.VehicleType</td>
+                    <td>@item.VehicleRegNo</td>
+                    <td>@item.RequestedServices</td>
+                    <td>@item.Status</td>
+                    <td>@item.RequestedDate</td>
+                    <td>@item.ServiceEngineer</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">Không có yêu cầu dịch vụ nào.</td>
+            </tr>
+        }
+    </tbody>
+</table>

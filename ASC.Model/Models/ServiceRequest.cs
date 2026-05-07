@@ -14,5 +14,7 @@ namespace ASC.Model.Models
         public string? Status { get; set; }
         public string? CustomerContact { get; set; }
         public bool IsRead { get; set; }
+        public string? CustomerCode { get; set; }
+        public string? ServiceEngineer { get; set; }
     }
 }
