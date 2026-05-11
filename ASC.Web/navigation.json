@@ -8,52 +8,34 @@
         "AllowedRoles": "Admin,Engineer,Customer"
       },
       {
-        "Name": "User Administration",
-        "Url": "/Dashboard/UserAdministration",
-        "Icon": "fas fa-users",
+        "Name": "Service Engineers",
+        "Url": "/Accounts/Account/ServiceEngineers",
+        "Icon": "fas fa-user-gear",
         "AllowedRoles": "Admin"
       },
       {
         "Name": "Customers",
-        "Url": "/Dashboard/Customers",
-        "Icon": "fas fa-user-group",
+        "Url": "/Accounts/Account/Customers",
+        "Icon": "fas fa-users",
         "AllowedRoles": "Admin"
       },
       {
-        "Name": "Provision User",
-        "Url": "/Dashboard/ProvisionUser",
-        "Icon": "fas fa-user-plus",
+        "Name": "Master Keys",
+        "Url": "/Configuration/MasterData/MasterKeys",
+        "Icon": "fas fa-list",
         "AllowedRoles": "Admin"
       },
       {
-        "Name": "Deactivate User",
-        "Url": "/Dashboard/DeactivateUser",
-        "Icon": "fas fa-user-slash",
-        "AllowedRoles": "Admin"
-      },
-      {
-        "Name": "Service Requests",
+        "Name": "New Service Request",
         "Url": "/ServiceRequests/ServiceRequest/ServiceRequest",
         "Icon": "fas fa-screwdriver-wrench",
+        "AllowedRoles": "Customer"
+      },
+      {
+        "Name": "Profile",
+        "Url": "/Accounts/Account/Profile",
+        "Icon": "fas fa-user",
         "AllowedRoles": "Admin,Engineer,Customer"
-      },
-      {
-        "Name": "Service Notifications",
-        "Url": "/Dashboard/ServiceNotifications",
-        "Icon": "fas fa-bell",
-        "AllowedRoles": "Admin,Engineer,Customer"
-      },
-      {
-        "Name": "Promotions",
-        "Url": "/Dashboard/Promotions",
-        "Icon": "fas fa-gift",
-        "AllowedRoles": "Admin,Customer"
-      },
-      {
-        "Name": "Settings",
-        "Url": "/Dashboard/Settings",
-        "Icon": "fas fa-gear",
-        "AllowedRoles": "Admin,Engineer"
       }
     ]
   }

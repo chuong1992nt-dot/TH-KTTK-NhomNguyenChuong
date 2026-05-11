@@ -1,124 +1,108 @@
 ﻿@model ASC.Web.Areas.Configuration.Models.MasterKeysViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    ViewData["Title"] = "Master Keys Configuration";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Master Keys";
+    Layout = "~/Views/Shared/_SecureLayout.cshtml";
 }
 
-<div class="container">
+<div class="row" style="margin-top:20px;">
+    <div class="col s12">
+        <h4 class="blue-text text-darken-3">
+            <i class="fas fa-list"></i> Quản lý Nhóm Danh Mục (Master Keys)
+        </h4>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
     <div class="row">
-        <h4>Quản lý Nhóm Danh Mục (Master Keys)</h4>
-        <hr />
-
-        @* Form Thêm Mới *@
-        <div class="row">
-            <form id="frmMasterKey"
-                  asp-action="MasterKeys"
-                  asp-controller="MasterData"
-                  asp-area="Configuration"
-                  method="post"
-                  class="col s12">
-
-                @Html.AntiForgeryToken()
-
-                <input type="hidden" name="MasterDataKeyInContext.PartitionKey" value="temp" />
-                <input type="hidden" name="MasterDataKeyInContext.RowKey" value="temp" />
-
-                <div class="row card-panel">
-                    <div class="input-field col s6">
-                        <input type="text"
-                               id="Name"
-                               name="MasterDataKeyInContext.Name"
-                               class="validate" />
-                        <label for="Name">Tên nhóm danh mục (Ví dụ: VEHICLE_TYPE)</label>
-                    </div>
-
-                    <div class="input-field col s3" style="margin-top:20px;">
-                        <label>
-                            <input type="checkbox"
-                                   id="IsActive"
-                                   name="MasterDataKeyInContext.IsActive"
-                                   value="true"
-                                   class="filled-in"
-                                   checked="checked" />
-                            <span>Hoạt động (Active)</span>
-                        </label>
-                    </div>
-
-                    <div class="input-field col s3">
-                        <button type="submit"
-                                form="frmMasterKey"
-                                class="btn waves-effect waves-light green">
-                            Thêm Mới <i class="material-icons right">add</i>
-                        </button>
-                    </div>
-                </div>
-            </form>
+        <div class="col s12">
+            <div class="card-panel teal lighten-4 teal-text text-darken-3">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
+            </div>
         </div>
+    </div>
+}
 
-        @* Bảng danh sách *@
-        <div class="row">
-            <table class="highlight centered responsive-table">
-                <thead>
-                    <tr>
-                        <th>Partition Key</th>
-                        <th>Tên (Name)</th>
-                        <th>Trạng thái</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.MasterDataKeys != null && Model.MasterDataKeys.Any())
-                    {
-                        foreach (var item in Model.MasterDataKeys)
-                        {
-                            <tr>
-                                <td>@item.PartitionKey</td>
-                                <td>@item.Name</td>
-                                <td>
-                                    @if (item.IsActive)
-                                    {
-                                        <span class="chip green white-text">Đang hoạt động</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="chip grey white-text">Ngừng hoạt động</span>
-                                    }
-                                </td>
-                                <td>
-                                    <a href="/Configuration/MasterData/MasterValues?partitionKey=@item.PartitionKey"
-                                       class="btn-small waves-effect waves-light blue">
-                                        <i class="material-icons left">list</i> Xem giá trị
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" class="center-align">Chưa có dữ liệu nào. Hãy thêm nhóm đầu tiên!</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+<!-- Form thêm mới -->
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Thêm nhóm mới</span>
+                <form asp-area="Configuration" asp-controller="MasterData"
+                      asp-action="MasterKeys" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="MasterDataKeyInContext.PartitionKey" value="" />
+                    <input type="hidden" name="MasterDataKeyInContext.RowKey" value="" />
+
+                    <div class="row">
+                        <div class="input-field col s12 m6">
+                            <input type="text" id="keyName" name="MasterDataKeyInContext.Name"
+                                   class="validate" required />
+                            <label for="keyName">Tên nhóm (VD: VEHICLE_TYPE, SERVICE_TYPE...)</label>
+                        </div>
+                        <div class="col s12 m3" style="margin-top:20px;">
+                            <label>
+                                <input type="checkbox" name="MasterDataKeyInContext.IsActive"
+                                       value="true" class="filled-in" checked />
+                                <span>Kích hoạt</span>
+                            </label>
+                        </div>
+                        <div class="col s12 m3" style="margin-top:15px;">
+                            <button type="submit" class="btn waves-effect blue darken-2">
+                                <i class="fas fa-plus left"></i> Thêm
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        // Đảm bảo form submit đúng cách
-        document.getElementById('frmMasterKey').addEventListener('submit', function (e) {
-            var name = document.getElementById('Name').value.trim();
-            if (!name) {
-                e.preventDefault();
-                alert('Vui lòng nhập tên nhóm danh mục!');
-                return false;
-            }
-            console.log('Form submitting với Name:', name);
-        });
-    </script>
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+<!-- Bảng danh sách -->
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Danh sách nhóm danh mục</span>
+                <table class="highlight responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Tên nhóm (PartitionKey)</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.MasterDataKeys != null && Model.MasterDataKeys.Any())
+                        {
+                            foreach (var item in Model.MasterDataKeys)
+                            {
+                                <tr>
+                                    <td><strong>@item.Name</strong> <small class="grey-text">(@item.PartitionKey)</small></td>
+                                    <td>
+                                        <span class="badge @(item.IsActive ? "green" : "grey") white-text">
+                                            @(item.IsActive ? "Hoạt động" : "Ngừng")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/Configuration/MasterData/MasterValues?partitionKey=@item.PartitionKey"
+                                           class="btn-small waves-effect blue darken-1 white-text">
+                                            <i class="fas fa-list left"></i> Xem Values
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="3" class="center-align grey-text">Chưa có nhóm nào. Hãy thêm nhóm đầu tiên!</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

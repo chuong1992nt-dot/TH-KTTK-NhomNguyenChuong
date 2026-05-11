@@ -16,11 +16,15 @@ namespace ASC.Web.Controllers
         public HomeController(ILogger<HomeController> logger, IOptions<ApplicationSettings> settings)
         {
             _logger = logger;
-            _settings = settings; 
+            _settings = settings;
         }
 
         public IActionResult Index()
         {
+            // Admin và Engineer tự động vào Dashboard, không ở lại trang chủ
+            if (User.IsInRole("Admin") || User.IsInRole("Engineer"))
+                return RedirectToAction("Dashboard", "Dashboard", new { area = "ServiceRequests" });
+
             ViewBag.Title = _settings.Value.ApplicationTitle;
             return View();
         }

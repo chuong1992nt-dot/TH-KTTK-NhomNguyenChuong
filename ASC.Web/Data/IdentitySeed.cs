@@ -13,7 +13,6 @@ namespace ASC.Web.Data
         private readonly ApplicationDbContext _context;
         private readonly IOptions<ApplicationSettings> _options;
 
-        // Tự động tiêm mọi thứ qua Constructor
         public IdentitySeed(UserManager<ApplicationUser> userManager,
                             RoleManager<IdentityRole> roleManager,
                             ApplicationDbContext context,
@@ -29,23 +28,18 @@ namespace ASC.Web.Data
         {
             _context.Database.EnsureCreated();
 
-            // 1. Lấy danh sách Roles từ appsettings.json và cắt chuỗi
+            // 1. Tạo Roles
             var roles = _options.Value.Roles.Split(',');
-
-            // 2. Tạo Roles
             foreach (var role in roles)
             {
                 if (!await _roleManager.RoleExistsAsync(role.Trim()))
-                {
                     await _roleManager.CreateAsync(new IdentityRole(role.Trim()));
-                }
             }
 
-            // 3. Lấy thông tin Admin từ appsettings.json
+            // 2. Tạo Admin nếu chưa có
             var adminEmail = _options.Value.AdminEmail;
             var adminPassword = _options.Value.AdminPassword;
 
-            // 4. Tạo Admin
             if (await _userManager.FindByEmailAsync(adminEmail) == null)
             {
                 var adminUser = new ApplicationUser
@@ -54,13 +48,20 @@ namespace ASC.Web.Data
                     Email = adminEmail,
                     EmailConfirmed = true,
                     IsActive = true,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    LockoutEnabled = true
                 };
 
                 var result = await _userManager.CreateAsync(adminUser, adminPassword);
                 if (result.Succeeded)
-                {
                     await _userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+
+            foreach (var user in _userManager.Users.ToList())
+            {
+                if (!user.LockoutEnabled)
+                {
+                    await _userManager.SetLockoutEnabledAsync(user, true);
                 }
             }
         }

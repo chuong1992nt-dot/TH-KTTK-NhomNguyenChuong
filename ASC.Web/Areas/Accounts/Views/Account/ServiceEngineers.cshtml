@@ -2,81 +2,117 @@
 @model ASC.Web.Areas.Accounts.Models.ServiceEngineerViewModel
 @{
     ViewData["Title"] = "Service Engineers";
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_SecureLayout.cshtml";
 }
 
-<div class="container">
-    <div class="row">
-        <h3>Quản lý Kỹ sư (Service Engineers)</h3>
+<div class="row" style="margin-top:20px;">
+    <div class="col s12">
+        <h4 class="blue-text text-darken-3">
+            <i class="fas fa-user-gear"></i> Quản lý Kỹ sư (Service Engineers)
+        </h4>
+    </div>
+</div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="row">
         <div class="col s12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">Danh sách Kỹ sư hiện tại</span>
-                    <table class="highlight">
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.ServiceEngineers.Any())
-                            {
-                                @foreach (var user in Model.ServiceEngineers)
-                                {
-                                    <tr>
-                                        <td>@user.Email</td>
-                                        <td>
-                                            <span class="badge @(user.LockoutEnabled ? "red white-text" : "green white-text")">
-                                                @(user.LockoutEnabled ? "Bị khóa" : "Đang hoạt động")
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr><td colspan="2" class="center-align">Chưa có kỹ sư nào.</td></tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+            <div class="card-panel teal lighten-4 teal-text text-darken-3">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
             </div>
         </div>
+    </div>
+}
 
-        <div class="col s12" style="margin-top: 20px;">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">Thêm Kỹ sư mới</span>
-                    <form asp-controller="Account" asp-action="ServiceEngineers" method="post">
-                        <div asp-validation-summary="All" class="red-text" style="font-weight: bold; margin-bottom: 20px;"></div>
-                        <div class="row">
-                            <div class="input-field col s12 m4">
-                                <input asp-for="Registration.Email" type="email" class="validate" required />
-                                <label asp-for="Registration.Email">Email</label>
-                            </div>
+<!-- Danh sách kỹ sư -->
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Danh sách Kỹ sư hiện tại</span>
+                <table class="highlight responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Tên</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ServiceEngineers != null && Model.ServiceEngineers.Any())
+                        {
+                            foreach (var user in Model.ServiceEngineers)
+                            {
+                                <tr>
+                                    <td>@user.Email</td>
+                                    <td>@(user.FullName ?? user.UserName)</td>
+                                    <td>
+                                        <span class="badge @(user.IsActive ? "green" : "red") white-text">
+                                            @(user.IsActive ? "Hoạt động" : "Bị khóa")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form asp-area="Accounts" asp-controller="Account"
+                                              asp-action="ToggleEngineerStatus" method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="email" value="@user.Email" />
+                                            <input type="hidden" name="activate" value="@(!user.IsActive)" />
+                                            <button type="submit"
+                                                    class="btn-small waves-effect @(user.IsActive ? "red" : "green") white-text">
+                                                <i class="fas fa-@(user.IsActive ? "lock" : "lock-open")"></i>
+                                                @(user.IsActive ? "Khóa" : "Kích hoạt")
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4" class="center-align grey-text">Chưa có kỹ sư nào.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-                            <div class="input-field col s12 m4">
-                                <input asp-for="Registration.Password" type="password" class="validate" required />
-                                <label asp-for="Registration.Password">Mật khẩu</label>
-                            </div>
-
-                            <div class="input-field col s12 m4">
-                                <input asp-for="Registration.ConfirmPassword" type="password" class="validate" required />
-                                <label asp-for="Registration.ConfirmPassword">Xác nhận mật khẩu</label>
-                            </div>
+<!-- Form thêm kỹ sư mới -->
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Thêm Kỹ sư mới</span>
+                <form asp-area="Accounts" asp-controller="Account"
+                      asp-action="ServiceEngineers" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="red-text" style="margin-bottom:10px;"></div>
+                    <div class="row">
+                        <div class="input-field col s12 m4">
+                            <input asp-for="Registration.Email" type="email" class="validate" />
+                            <label asp-for="Registration.Email">Email</label>
+                            <span asp-validation-for="Registration.Email" class="red-text helper-text"></span>
                         </div>
-
-                        <div class="row">
-                            <div class="col s12 right-align">
-                                <button type="submit" class="btn blue darken-1 waves-effect waves-light">
-                                    <i class="material-icons left">person_add</i> TẠO TÀI KHOẢN
-                                </button>
-                            </div>
+                        <div class="input-field col s12 m4">
+                            <input asp-for="Registration.Password" type="password" class="validate" />
+                            <label asp-for="Registration.Password">Mật khẩu</label>
                         </div>
-                    </form>
-                </div>
+                        <div class="input-field col s12 m4">
+                            <input asp-for="Registration.ConfirmPassword" type="password" class="validate" />
+                            <label asp-for="Registration.ConfirmPassword">Xác nhận mật khẩu</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 right-align">
+                            <button type="submit" class="btn waves-effect blue darken-2">
+                                <i class="fas fa-user-plus left"></i> Tạo tài khoản
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

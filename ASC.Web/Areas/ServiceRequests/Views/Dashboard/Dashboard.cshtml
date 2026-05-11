@@ -1,6 +1,239 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model ASC.Web.Areas.ServiceRequests.Models.DashboardViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_SecureLayout.cshtml";
 }
-<h1>Chào mừng sếp đến với Dashboard bí mật!</h1>
+
+<!-- Thông báo thành công -->
+@if (TempData["Success"] != null)
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel teal lighten-4 teal-text text-darken-3">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Tiêu đề -->
+<div class="row" style="margin-top:20px;">
+    <div class="col s12">
+        <h4 class="blue-text text-darken-3">
+            <i class="fas fa-gauge"></i> Dashboard
+            @if (Model.IsAdmin)
+            {
+                <span class="badge blue white-text">Admin</span>
+            }
+            else if (Model.IsEngineer)
+            {
+
+                <span class="badge green white-text">Engineer</span>
+            }
+            else
+            {
+
+                <span class="badge orange white-text">Customer</span>
+            }
+        </h4>
+    </div>
+</div>
+
+<!-- Thống kê nhanh (chỉ Admin và Engineer xem) -->
+@if (Model.IsAdmin || Model.IsEngineer)
+{
+    <div class="row">
+        <div class="col s6 m3">
+            <div class="card blue darken-1 white-text center-align">
+                <div class="card-content">
+                    <p style="font-size:2.5rem; margin:0; font-weight:bold;">@Model.TotalNew</p>
+                    <p class="card-title" style="font-size:0.9rem;">Mới</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s6 m3">
+            <div class="card orange darken-1 white-text center-align">
+                <div class="card-content">
+                    <p style="font-size:2.5rem; margin:0; font-weight:bold;">@Model.TotalActive</p>
+                    <p class="card-title" style="font-size:0.9rem;">Đang chờ</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s6 m3">
+            <div class="card purple darken-1 white-text center-align">
+                <div class="card-content">
+                    <p style="font-size:2.5rem; margin:0; font-weight:bold;">@Model.TotalInProgress</p>
+                    <p class="card-title" style="font-size:0.9rem;">Đang xử lý</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s6 m3">
+            <div class="card green darken-1 white-text center-align">
+                <div class="card-content">
+                    <p style="font-size:2.5rem; margin:0; font-weight:bold;">@Model.TotalCompleted</p>
+                    <p class="card-title" style="font-size:0.9rem;">Hoàn thành</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Nút tạo yêu cầu mới (chỉ Customer) -->
+@if (Model.IsCustomer)
+{
+    <div class="row">
+        <div class="col s12">
+            <a asp-area="ServiceRequests" asp-controller="ServiceRequest" asp-action="ServiceRequest"
+               class="btn waves-effect waves-light blue darken-2">
+                <i class="fas fa-plus left"></i> Tạo yêu cầu dịch vụ mới
+            </a>
+        </div>
+    </div>
+}
+
+<!-- Bảng danh sách yêu cầu -->
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Danh sách yêu cầu dịch vụ</span>
+                <table id="tblRequests" class="highlight responsive-table" style="width:100%">
+                    <thead>
+                        <tr>
+                            @if (Model.IsAdmin || Model.IsEngineer)
+                            {
+                                <th>Khách hàng</th>
+                            }
+                            <th>Dịch vụ</th>
+                            <th>Loại xe</th>
+                            <th>Biển số</th>
+                            <th>Ngày yêu cầu</th>
+                            <th>Kỹ sư</th>
+                            <th>Trạng thái</th>
+                            @if (Model.IsAdmin)
+                            {
+                                <th>Cập nhật</th>
+                                <th>Chi tiết</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.ServiceRequests)
+                        {
+                            <tr>
+                                @if (Model.IsAdmin || Model.IsEngineer)
+                                {
+                                    <td><small>@r.CustomerCode</small></td>
+                                }
+                                <td>@r.RequestedServices</td>
+                                <td>@r.VehicleType</td>
+                                <td>@r.VehicleRegNo</td>
+                                <td>@r.RequestedDate</td>
+                                <td>@(string.IsNullOrEmpty(r.ServiceEngineer) ? "Chưa giao" : r.ServiceEngineer)</td>
+                                <td>
+                                    @{
+                                        var (badgeColor, label) = r.Status switch
+                                        {
+                                            "New" => ("blue", "Mới"),
+                                            "Active" => ("orange", "Đang chờ"),
+                                            "InProgress" => ("purple", "Đang xử lý"),
+                                            "Completed" => ("green", "Hoàn thành"),
+                                            "Rejected" => ("red", "Từ chối"),
+                                            _ => ("grey", r.Status ?? "")
+                                        };
+                                    }
+                                    <span class="badge @badgeColor white-text">@label</span>
+                                </td>
+                                <td>
+                                    <a asp-area="ServiceRequests" asp-controller="ServiceRequest"
+                                       asp-action="Detail" asp-route-rowKey="@r.RowKey"
+                                       class="btn-small waves-effect blue-grey white-text">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                                @if (Model.IsAdmin)
+                                {
+                                    <td>
+                                        <button class="btn-small waves-effect blue darken-1 white-text"
+                                                onclick="openUpdateModal('@r.RowKey','@r.Status','@r.ServiceEngineer')">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                        @if (!Model.ServiceRequests.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="center-align grey-text" style="padding:30px;">
+                                    <i class="fas fa-inbox fa-2x"></i><br />Không có yêu cầu nào.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cập nhật trạng thái (Admin only) -->
+@if (Model.IsAdmin)
+{
+    <div id="modalUpdate" class="modal">
+        <div class="modal-content">
+            <h5>Cập nhật yêu cầu</h5>
+            <form asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="hdnRowKey" name="rowKey" />
+
+                <div class="input-field">
+                    <select id="selStatus" name="status" class="browser-default">
+                        <option value="New">Mới</option>
+                        <option value="Active">Đang chờ</option>
+                        <option value="InProgress">Đang xử lý</option>
+                        <option value="Completed">Hoàn thành</option>
+                        <option value="Rejected">Từ chối</option>
+                    </select>
+                    <label class="active">Trạng thái</label>
+                </div>
+
+                <div class="input-field">
+                    <input type="email" id="txtEngineer" name="engineerEmail"
+                           placeholder="Email kỹ sư (bỏ trống nếu chưa giao)" />
+                    <label class="active">Email kỹ sư phụ trách</label>
+                </div>
+
+                <div class="modal-footer" style="padding:10px 0 0;">
+                    <button type="submit" class="btn waves-effect blue darken-2">Lưu</button>
+                    <a class="modal-close btn waves-effect grey lighten-2 black-text" style="margin-left:8px;">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.modal').modal();
+
+            if ($.fn.DataTable) {
+                $('#tblRequests').DataTable({
+                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
+                    order: [[4, 'desc']],
+                    pageLength: 10
+                });
+            }
+        });
+
+        function openUpdateModal(rowKey, status, engineer) {
+            document.getElementById('hdnRowKey').value = rowKey;
+            document.getElementById('selStatus').value = status || 'New';
+            document.getElementById('txtEngineer').value = engineer || '';
+            var modal = M.Modal.getInstance(document.getElementById('modalUpdate'));
+            modal.open();
+        }
+    </script>
+}

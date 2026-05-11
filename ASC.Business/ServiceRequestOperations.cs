@@ -1,9 +1,6 @@
 ﻿using ASC.Business.Interfaces;
 using ASC.DataAccess.Interfaces;
 using ASC.Model.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ASC.Business
 {
@@ -24,33 +21,50 @@ namespace ASC.Business
             return serviceRequest;
         }
 
+        public async Task<ServiceRequest?> GetServiceRequestByRowKeyAsync(string rowKey)
+        {
+            return await _unitOfWork.Repository<ServiceRequest>().FindAsync(rowKey);
+        }
+
         public async Task<List<ServiceRequest>> GetServiceRequestsAsync()
         {
-            var repository = _unitOfWork.Repository<ServiceRequest>();
-            var requests = await repository.GetAllAsync();
-            return requests.ToList();
+            var all = await _unitOfWork.Repository<ServiceRequest>().GetAllAsync();
+            return all.Where(r => !r.IsDeleted).OrderByDescending(r => r.CreatedDate).ToList();
         }
 
-        // Thêm 3 method còn thiếu
         public async Task<List<ServiceRequest>> GetAllServiceRequestsAsync()
         {
-            var repository = _unitOfWork.Repository<ServiceRequest>();
-            var requests = await repository.GetAllAsync();
-            return requests.Where(r => !r.IsDeleted).ToList();
+            var all = await _unitOfWork.Repository<ServiceRequest>().GetAllAsync();
+            return all.Where(r => !r.IsDeleted).OrderByDescending(r => r.CreatedDate).ToList();
         }
 
-        public async Task<List<ServiceRequest>> GetServiceRequestsByCustomerAsync(string customerId)
+        public async Task<List<ServiceRequest>> GetServiceRequestsByCustomerAsync(string customerCode)
         {
-            var repository = _unitOfWork.Repository<ServiceRequest>();
-            var requests = await repository.GetAllAsync();
-            return requests.Where(r => r.CustomerCode == customerId && !r.IsDeleted).ToList();
+            var all = await _unitOfWork.Repository<ServiceRequest>()
+                .FindAllByAsync(r => r.CustomerCode == customerCode && !r.IsDeleted);
+            return all.OrderByDescending(r => r.CreatedDate).ToList();
         }
 
-        public async Task<List<ServiceRequest>> GetServiceRequestsByEngineerAsync(string engineerId)
+        public async Task<List<ServiceRequest>> GetServiceRequestsByEngineerAsync(string engineerEmail)
         {
-            var repository = _unitOfWork.Repository<ServiceRequest>();
-            var requests = await repository.GetAllAsync();
-            return requests.Where(r => r.ServiceEngineer == engineerId && !r.IsDeleted).ToList();
+            var all = await _unitOfWork.Repository<ServiceRequest>()
+                .FindAllByAsync(r => r.ServiceEngineer == engineerEmail && !r.IsDeleted);
+            return all.OrderByDescending(r => r.CreatedDate).ToList();
+        }
+
+        public async Task<bool> UpdateServiceRequestAsync(ServiceRequest serviceRequest)
+        {
+            try
+            {
+                var repo = _unitOfWork.Repository<ServiceRequest>();
+                repo.Update(serviceRequest);
+                await _unitOfWork.CommitTransactionAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

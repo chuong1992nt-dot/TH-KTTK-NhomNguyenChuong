@@ -2,61 +2,81 @@
 @model ASC.Web.Areas.Accounts.Models.CustomerViewModel
 @{
     ViewData["Title"] = "Customers";
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_SecureLayout.cshtml";
 }
 
-<div class="container">
+<div class="row" style="margin-top:20px;">
+    <div class="col s12">
+        <h4 class="blue-text text-darken-3">
+            <i class="fas fa-users"></i> Quản lý Khách hàng (Customers)
+        </h4>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
     <div class="row">
-        <h3>Quản lý Khách hàng (Customers)</h3>
-
         <div class="col s12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">Danh sách Khách hàng</span>
-                    <table class="highlight">
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Customers != null && Model.Customers.Any())
-                            {
-                                foreach (var user in Model.Customers)
-                                {
-                                    <tr>
-                                        <td>@user.Email</td>
-                                        <td>
-                                            <span class="badge @(user.LockoutEnabled ? "red white-text" : "green white-text")">
-                                                @(user.LockoutEnabled ? "Bị khóa" : "Đang hoạt động")
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <form asp-controller="Account" asp-action="Customers" method="post" style="display:inline;">
-                                                <input type="hidden" asp-for="Registration.Email" value="@user.Email" />
-
-                                                <input type="hidden" asp-for="Registration.IsActive" value="@(user.LockoutEnabled ? "false" : "true")" />
-
-                                                <button type="submit" class="btn-small waves-effect waves-light @(user.LockoutEnabled ? "green" : "red")">
-                                                    <i class="material-icons left">@(user.LockoutEnabled ? "lock_open" : "lock")</i>
-                                                    @(user.LockoutEnabled ? "Kích hoạt" : "Khóa")
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr><td colspan="3" class="center-align">Hệ thống chưa có khách hàng nào.</td></tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+            <div class="card-panel teal lighten-4 teal-text text-darken-3">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
             </div>
         </div>
+    </div>
+}
 
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">Danh sách Khách hàng</span>
+                <table class="highlight responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Tên</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Customers != null && Model.Customers.Any())
+                        {
+                            foreach (var user in Model.Customers)
+                            {
+                                <tr>
+                                    <td>@user.Email</td>
+                                    <td>@(user.FullName ?? user.UserName)</td>
+                                    <td>
+                                        <span class="badge @(user.IsActive ? "green" : "red") white-text">
+                                            @(user.IsActive ? "Hoạt động" : "Bị khóa")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <!-- Khóa / kích hoạt -->
+                                        <form asp-area="Accounts" asp-controller="Account"
+                                              asp-action="Customers" method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="Registration.Email" value="@user.Email" />
+                                            <input type="hidden" name="Registration.IsActive"
+                                                   value="@(!user.IsActive)" />
+                                            <button type="submit"
+                                                    class="btn-small waves-effect @(user.IsActive ? "red" : "green") white-text">
+                                                <i class="fas fa-@(user.IsActive ? "lock" : "lock-open")"></i>
+                                                @(user.IsActive ? "Khóa" : "Kích hoạt")
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4" class="center-align grey-text">Chưa có khách hàng nào.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

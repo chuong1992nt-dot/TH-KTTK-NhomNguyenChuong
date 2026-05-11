@@ -38,22 +38,34 @@
 
             <div class="nav-wrapper">
 
+                <!-- LOGO → click về trang chủ -->
                 <a href="@Url.Action("Index", "Home", new { area = "" })"
                    class="brand-logo"
                    style="display:flex;
                           align-items:center;
                           gap:10px;
-                          padding-left:20px;">
+                          padding-left:20px;
+                          cursor:pointer;">
 
                     <img src="/images/logo.png"
-                         style="height:35px;
-                                width:auto;" />
+                         style="height:35px; width:auto;" />
 
-                    <span style="font-size:1.1rem">
+                    <span style="font-size:1.1rem;">
                         ASC Admin
                     </span>
 
                 </a>
+
+                <!-- Nút Home ở góc phải navbar -->
+                <ul class="right" style="margin-right:16px;">
+                    <li>
+                        <a href="@Url.Action("Index", "Home", new { area = "" })"
+                           title="Về trang chủ">
+                            <i class="fas fa-house"></i>
+                            <span class="hide-on-med-and-down" style="margin-left:6px;">Trang chủ</span>
+                        </a>
+                    </li>
+                </ul>
 
             </div>
 
@@ -84,9 +96,7 @@
                 Powered by
                 <a class="orange-text text-lighten-3"
                    href="http://materializecss.com">
-
                     Materialize
-
                 </a>
 
             </div>

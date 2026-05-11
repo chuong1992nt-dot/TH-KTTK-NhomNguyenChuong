@@ -1,79 +1,73 @@
 using ASC.Business.Interfaces;
-using ASC.DataAccess;
-using ASC.DataAccess.Interfaces;
-using ASC.DataAccess.Repository;
 using ASC.Web.Configuration;
 using ASC.Web.Data;
 using ASC.Web.Models;
 using ASC.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("navigation.json", optional: true, reloadOnChange: true);
 
-// 1. Cấu hình DbContext 
-builder.Services.AddDbContext<ASC.Web.Data.ApplicationDbContext>(options =>
+// 1. DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("ASC.Web")
     )
 );
+builder.Services.AddScoped<DbContext, ApplicationDbContext>();
 
-builder.Services.AddScoped<DbContext, ASC.Web.Data.ApplicationDbContext>();
-
-// 2. Cấu hình Identity
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => {
-    options.SignIn.RequireConfirmedAccount = false;
+// 2. Identity
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false; // false = không cần xác nhận email
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
 })
 .AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<ASC.Web.Data.ApplicationDbContext>()
+.AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// 3. Google OAuth
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        IConfigurationSection googleAuthNSection = builder.Configuration.GetSection("Google:Identity");
-        options.ClientId = googleAuthNSection["ClientId"];
-        options.ClientSecret = googleAuthNSection["ClientSecret"];
+        var googleSection = builder.Configuration.GetSection("Google:Identity");
+        options.ClientId = googleSection["ClientId"]!;
+        options.ClientSecret = googleSection["ClientSecret"]!;
     });
 
-// 3. Khai báo MVC và Razor Pages
+// 4. MVC + Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
-builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
-// 4. Tiêm các Dependencies khác (Từ file ConfigurationExtension)
+// 5. AutoMapper - scan tất cả assembly trong project
+builder.Services.AddAutoMapper(
+    typeof(ASC.Web.Mappings.MappingProfile).Assembly,
+    typeof(ASC.Web.Areas.ServiceRequests.Models.ServiceRequestMappingProfile).Assembly
+);
+
+// 6. Email
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, AuthMessageSender>();
+builder.Services.AddTransient<ISmsSender, AuthMessageSender>();
+builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, AuthMessageSender>();
+
+// 7. NavigationMenu
+builder.Services.Configure<NavigationMenu>(builder.Configuration.GetSection("NavigationMenu"));
+
+// 8. Custom Dependencies (đọc từ ConfigurationExtension.cs)
 builder.Services.AddConfig(builder.Configuration).AddMyDependencyGroup();
 
-// 5. CẤU HÌNH GỬI EMAIL (BẠN CHÈN ĐOẠN NÀY VÀO ĐÂY NHÉ)
-// - Đọc thông tin cấu hình từ appsettings.json
-builder.Services.Configure<ASC.Web.Configuration.EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
-// - Đăng ký interface của riêng Project (để dùng trong các Controller của bạn sau này)
-builder.Services.AddTransient<ASC.Web.Services.IEmailSender, ASC.Web.Services.AuthMessageSender>();
-builder.Services.AddTransient<ASC.Web.Services.ISmsSender, ASC.Web.Services.AuthMessageSender>();
-
-// - Đăng ký interface chuẩn của Identity (bắt buộc để nút Đăng ký / Quên mật khẩu hoạt động)
-builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, ASC.Web.Services.AuthMessageSender>();
-
-builder.Services.Configure<ASC.Web.Configuration.NavigationMenu>(builder.Configuration.GetSection("NavigationMenu"));
-
-
-builder.Services.AddScoped<ASC.Business.Interfaces.IMasterDataOperations, ASC.Business.MasterDataOperations>();
-
-builder.Services.AddAutoMapper(typeof(Program));
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//  HTTP Pipeline 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -82,61 +76,39 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
- 
 app.UseRouting();
 app.UseSession();
-
-// Bắt buộc phải có Authentication trước Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Định tuyến cho Area (ServiceRequests)
+// Routes
 app.MapControllerRoute(
     name: "areaRoute",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-// Định tuyến mặc định
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages(); // Map đường dẫn cho các trang Identity (Login, Register...)
+app.MapRazorPages();
 
-// Thực thi Seed Data
+// ── Seed Data ──
 using (var scope = app.Services.CreateScope())
 {
     try
     {
-        // --- ĐOẠN CODE MỚI ĐỂ CẤP QUYỀN ADMIN ---
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-        // 1. Tạo role "Admin" trong Database (nếu chưa có)
-        if (!await roleManager.RoleExistsAsync("Admin"))
-        {
-            await roleManager.CreateAsync(new IdentityRole("Admin"));
-        }
-
-        // 2. Tìm tài khoản bạn vừa đăng ký và gắn quyền Admin
-        var adminUser = await userManager.FindByEmailAsync("admin@asc.com");
-        if (adminUser != null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-        // ----------------------------------------
-
+        // Seed roles + admin user
         var identitySeed = scope.ServiceProvider.GetRequiredService<IIdentitySeed>();
         await identitySeed.Seed();
 
-        // ----------------------------------------
-
+        // Seed MasterData cache
         var masterDataCache = scope.ServiceProvider.GetRequiredService<IMasterDataCacheOperations>();
         await masterDataCache.CreateMasterDataCacheAsync();
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Lỗi cmnr khi Seeding Database!");
+        logger.LogError(ex, "Lỗi khi khởi tạo dữ liệu ban đầu!");
     }
 }
 

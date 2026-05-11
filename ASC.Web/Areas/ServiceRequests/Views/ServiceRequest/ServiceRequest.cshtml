@@ -1,102 +1,132 @@
 ﻿@model ASC.Web.Areas.ServiceRequests.Models.NewServiceRequestViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    ViewData["Title"] = "New Service Request";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Tạo yêu cầu dịch vụ";
+    Layout = "~/Views/Shared/_SecureLayout.cshtml";
 }
 
-<div class="container">
-    <div class="row">
-        <h4>Yêu Cầu Dịch Vụ Mới (New Service Request)</h4>
-        <hr />
-
-        <form id="frmServiceRequest"
-              asp-action="ServiceRequest"
-              asp-controller="ServiceRequest"
-              asp-area="ServiceRequests"
-              method="post"
-              class="col s12">
-
-            @Html.AntiForgeryToken()
-
-            <div class="row card-panel">
-
-                <div class="input-field col s6">
-                    <select id="RequestedServices"
-                            name="RequestedServices"
-                            class="browser-default">
-                        <option value="">-- Chọn dịch vụ --</option>
-                        @if (Model.ServicesList != null)
-                        {
-                            foreach (var item in Model.ServicesList)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        }
-                    </select>
-                    <label>Dịch vụ yêu cầu</label>
-                </div>
-
-                <div class="input-field col s6">
-                    <select id="VehicleType"
-                            name="VehicleType"
-                            class="browser-default">
-                        <option value="">-- Chọn loại xe --</option>
-                        @if (Model.VehicleTypeList != null)
-                        {
-                            foreach (var item in Model.VehicleTypeList)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        }
-                    </select>
-                    <label>Loại xe</label>
-                </div>
-
-                <div class="input-field col s6">
-                    <input type="text"
-                           id="VehicleRegNo"
-                           name="VehicleRegNo"
-                           class="validate" />
-                    <label for="VehicleRegNo">Biển số xe</label>
-                </div>
-
-                <div class="input-field col s6">
-                    <input type="text"
-                           id="RequestedDate"
-                           name="RequestedDate"
-                           class="validate datepicker" />
-                    <label for="RequestedDate">Ngày yêu cầu</label>
-                </div>
-
-                <div class="input-field col s6">
-                    <input type="text"
-                           id="CustomerContact"
-                           name="CustomerContact"
-                           class="validate" />
-                    <label for="CustomerContact">Số điện thoại liên hệ</label>
-                </div>
-
-                <div class="input-field col s12">
-                    <button type="submit"
-                            form="frmServiceRequest"
-                            class="btn waves-effect waves-light green">
-                        Gửi Yêu Cầu <i class="material-icons right">send</i>
-                    </button>
-                </div>
-
-            </div>
-        </form>
-
-        @if (!string.IsNullOrEmpty(ViewBag.Message))
-        {
-            <div class="row">
-                <div class="col s12">
-                    <div class="card-panel green white-text">
-                        @ViewBag.Message
-                    </div>
-                </div>
-            </div>
-        }
-
+<div class="row" style="margin-top:20px;">
+    <div class="col s12">
+        <h4 class="blue-text text-darken-3">
+            <i class="fas fa-screwdriver-wrench"></i> Tạo yêu cầu dịch vụ mới
+        </h4>
+        <a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard"
+           class="btn-flat blue-text">
+            <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+        </a>
     </div>
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="row">
+        <div class="col s12">
+            <div class="card-panel teal lighten-4 teal-text text-darken-3">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col s12 m8 offset-m2">
+        <div class="card">
+            <div class="card-content">
+                <form asp-area="ServiceRequests" asp-controller="ServiceRequest"
+                      asp-action="ServiceRequest" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+                        <div class="input-field col s12 m6">
+                            <select id="RequestedServices" name="RequestedServices" class="browser-default">
+                                <option value="">-- Chọn dịch vụ --</option>
+                                @if (Model.ServicesList != null)
+                                {
+                                    foreach (var item in Model.ServicesList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                            <label class="active">Dịch vụ yêu cầu</label>
+                            <span class="red-text helper-text" data-error="Vui lòng chọn dịch vụ"></span>
+                        </div>
+
+                        <div class="input-field col s12 m6">
+                            <select id="VehicleType" name="VehicleType" class="browser-default">
+                                <option value="">-- Chọn loại xe --</option>
+                                @if (Model.VehicleTypeList != null)
+                                {
+                                    foreach (var item in Model.VehicleTypeList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                            <label class="active">Loại xe</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-field col s12 m6">
+                            <input type="text" id="VehicleRegNo" name="VehicleRegNo"
+                                   value="@Model.VehicleRegNo" class="validate" required />
+                            <label for="VehicleRegNo" class="@(Model.VehicleRegNo != null ? "active" : "")">
+                                Biển số xe (VD: 51A-12345)
+                            </label>
+                        </div>
+
+                        <div class="input-field col s12 m6">
+                            <input type="text" id="RequestedDate" name="RequestedDate"
+                                   value="@Model.RequestedDate" class="validate datepicker" required />
+                            <label for="RequestedDate" class="@(Model.RequestedDate != null ? "active" : "")">
+                                Ngày yêu cầu
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input type="text" id="CustomerContact" name="CustomerContact"
+                                   value="@Model.CustomerContact" class="validate" />
+                            <label for="CustomerContact" class="@(Model.CustomerContact != null ? "active" : "")">
+                                Số điện thoại liên hệ
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col s12 right-align">
+                            <a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard"
+                               class="btn waves-effect grey lighten-1 black-text">Hủy</a>
+                            <button type="submit" class="btn waves-effect waves-light blue darken-2" style="margin-left:8px;">
+                                <i class="fas fa-paper-plane left"></i> Gửi yêu cầu
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo Materialize datepicker
+            var elems = document.querySelectorAll('.datepicker');
+            M.Datepicker.init(elems, {
+                format: 'dd/mm/yyyy',
+                i18n: {
+                    months: ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
+                             'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'],
+                    monthsShort: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+                    weekdays: ['Chủ nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'],
+                    weekdaysShort: ['CN','T2','T3','T4','T5','T6','T7'],
+                    weekdaysAbbrev: ['CN','T2','T3','T4','T5','T6','T7'],
+                    cancel: 'Hủy', done: 'Chọn', clear: 'Xóa'
+                }
+            });
+        });
+    </script>
+}

@@ -14,15 +14,18 @@ namespace ASC.Web.Data
         public DbSet<MasterDataKey> MasterDataKeys { get; set; }
         public DbSet<MasterDataValue> MasterDataValues { get; set; }
         public DbSet<ServiceRequest> ServiceRequests { get; set; }
-        public virtual DbSet<Product> Products { get; set; }    
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<MasterDataKey>().HasKey(c => c.PartitionKey);
-            builder.Entity<MasterDataValue>().HasKey(c => c.RowKey);
-            builder.Entity<ServiceRequest>().HasKey(c => c.RowKey);
+            builder.Entity<MasterDataKey>().Ignore(c => c.RowKey); 
 
-            base.OnModelCreating(builder); // Bắt buộc phải có dòng này cho Identity
+            builder.Entity<MasterDataValue>().HasKey(c => c.RowKey);
+
+            builder.Entity<ServiceRequest>().HasKey(c => c.RowKey);
+            builder.Entity<ServiceRequest>().Ignore(c => c.PartitionKey);
+
+            base.OnModelCreating(builder);
         }
     }
 }

@@ -1,0 +1,37 @@
+﻿@model ASC.Model.Models.ServiceRequest
+@{
+    ViewData["Title"] = "Chi tiết yêu cầu";
+    Layout = "~/Views/Shared/_SecureLayout.cshtml";
+}
+
+<div class="row" style="margin-top:20px;">
+    <div class="col s12 m8 offset-m2">
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title blue-text text-darken-3">
+                    <i class="fas fa-file-alt"></i> Chi tiết yêu cầu dịch vụ
+                </span>
+                <table class="striped">
+                    <tbody>
+                        <tr><td><b>Khách hàng</b></td><td>@Model.CustomerCode</td></tr>
+                        <tr><td><b>Dịch vụ</b></td><td>@Model.RequestedServices</td></tr>
+                        <tr><td><b>Dịch vụ phụ</b></td><td>@Model.SubRequestedServices</td></tr>
+                        <tr><td><b>Loại xe</b></td><td>@Model.VehicleType</td></tr>
+                        <tr><td><b>Biển số xe</b></td><td>@Model.VehicleRegNo</td></tr>
+                        <tr><td><b>Ngày yêu cầu</b></td><td>@Model.RequestedDate</td></tr>
+                        <tr><td><b>SĐT liên hệ</b></td><td>@Model.CustomerContact</td></tr>
+                        <tr><td><b>Kỹ sư phụ trách</b></td><td>@(Model.ServiceEngineer ?? "Chưa giao")</td></tr>
+                        <tr><td><b>Trạng thái</b></td><td>@Model.Status</td></tr>
+                        <tr><td><b>Ngày tạo</b></td><td>@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-action">
+                <a asp-area="ServiceRequests" asp-controller="Dashboard" asp-action="Dashboard"
+                   class="btn waves-effect grey lighten-1 black-text">
+                    <i class="fas fa-arrow-left left"></i> Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
